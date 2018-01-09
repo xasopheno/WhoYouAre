@@ -14,8 +14,6 @@ class StreamToFrequency:
         self.pDetection.set_silence(-40)
         self.pDetection.set_tolerance(.4)
 
-        self.output_file = open('Detection/output.txt', 'w')
-
         self.volume_threshold = 6
         self.acceptable_confidence = 1
 
