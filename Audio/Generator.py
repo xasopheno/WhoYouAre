@@ -11,7 +11,7 @@ from Audio.File_Writer import File_Writer
 
 
 class Generator:
-    def __init__(self, args=None, store=None):
+    def __init__(self, args=None):
         self.arguments = args
         self.subdivision = 0.1
         self.isZero = True
@@ -19,13 +19,16 @@ class Generator:
         self.past_pred = 0
         self.show_prediction = args.display_prediction
         self.new_note = False
-        self.write_csv = File_Writer(args.write_csv)
+        self.write_csv = args.write_csv
+        self.writer = File_Writer()
 
         self.volume_array = []
 
-        self.detector = StreamToFrequency(store=store, show_volume=args.display_volume)
-        self.store = store
-        self.player = MidiPlayer(synth='Volca')
+        self.store = Store()
+        self.detector = StreamToFrequency(store=self.store, show_volume=args.display_volume)
+
+        self.play = args.play
+        self.player = self.setup_player()
 
         self.p = pyaudio.   PyAudio()
         self.stream = self.p.open(format=pyaudio.paFloat32,
@@ -36,7 +39,16 @@ class Generator:
                                   output=False,
                                   stream_callback=self.detector.callback)
 
-    def get_store_values(self):
+    def setup_player(self):
+        player = None
+        if self.play:
+            try:
+                player = MidiPlayer(synth='Volca')
+            except:
+                print('No midi desinations!')
+        return player
+
+    def generate(self):
         while True:
             pred = self.store.values
 
@@ -51,13 +63,6 @@ class Generator:
 
             self.play_value(pred)
 
-    def play_midi(self, value, volume):
-        if value == 0:
-            time.sleep(self.subdivision * 1.0)
-        else:
-            for i in range(2):
-                self.player.play(value, self.subdivision /3, volume)
-
     def play_value(self, predicted_values):
         note = predicted_values["note"]
         volume = predicted_values["volume"]
@@ -65,43 +70,17 @@ class Generator:
         if self.show_prediction and self.new_note:
             print(predicted_values)
 
+        if self.write_csv and self.new_note:
+            self.writer.write_to_csv(predicted_values)
+
         self.play_midi(note, volume)
 
-
-def get_user_options():
-    a = argparse.ArgumentParser()
-    a.add_argument("--volume",
-                   help = "Specify if input volume should be displayed.",
-                   dest = "display_volume",
-                   required=False,
-                   default=False,
-                   type=bool,
-                   nargs=1)
-
-    a.add_argument("--values",
-                   help="Specify if prediction values should be displayed).",
-                   dest = "display_prediction",
-                   required=False,
-                   default=False,
-                   type=bool,
-                   nargs=1)
-
-
-    a.add_argument("--csv",
-                   help="Specify if a csv should be written).",
-                   dest="write_csv",
-                   required=False,
-                   default='',
-                   type=str,
-                   nargs=1)
-
-    return a.parse_args()
-
-if __name__ == '__main__':
-    args = get_user_options()
-    print('args: ', args)
-
-    store = Store()
-    generator = Generator(args=args, store=store)
-
-    generator.get_store_values()
+    def play_midi(self, value, volume):
+        if value == 0:
+            time.sleep(self.subdivision * 1.0)
+        else:
+            for i in range(2):
+                if self.play:
+                    self.player.play(value, self.subdivision / 3, volume)
+                else:
+                    time.sleep(self.subdivision / 3)
