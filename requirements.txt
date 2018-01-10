@@ -1,0 +1,4 @@
+aubio==0.4.6
+numpy==1.14.0
+PyAudio==0.2.11
+python-rtmidi==1.1.0
