@@ -13,7 +13,7 @@ from Audio.File_Writer import File_Writer
 class Generator:
     def __init__(self, args=None):
         self.arguments = args
-        self.subdivision = 0.1
+        self.subdivision = 0.03
         self.isZero = True
         self.counter = 1
         self.past_pred = 0
@@ -23,6 +23,11 @@ class Generator:
         self.writer = File_Writer()
 
         self.volume_array = []
+        self.past_predicted_values = {
+            "note": 0,
+            "volume": 0,
+            "length": 0,
+        }
 
         self.store = Store()
         self.detector = StreamToFrequency(store=self.store, show_volume=args.display_volume)
@@ -68,19 +73,20 @@ class Generator:
         volume = predicted_values["volume"]
 
         if self.show_prediction and self.new_note:
-            print(predicted_values)
+            print(self.past_predicted_values)
 
-        if self.write_csv and self.new_note:
-            self.writer.write_to_csv(predicted_values)
-
+        # if self.write_csv and self.new_note:
         self.play_midi(note, volume)
+        self.writer.write_to_csv(self.past_predicted_values)
+
+        self.past_predicted_values = predicted_values
+
 
     def play_midi(self, value, volume):
         if value == 0:
             time.sleep(self.subdivision * 1.0)
         else:
-            for i in range(2):
-                if self.play:
-                    self.player.play(value, self.subdivision / 3, volume)
-                else:
-                    time.sleep(self.subdivision / 3)
+            if self.play:
+                self.player.play(value, self.subdivision, volume)
+            else:
+                time.sleep(self.subdivision)

@@ -2,6 +2,7 @@ import numpy
 import aubio
 import shutil
 import pyaudio
+import math
 
 
 class StreamToFrequency:
