@@ -72,8 +72,8 @@ class Generator:
         note = predicted_values["note"]
         volume = predicted_values["volume"]
 
-        if self.show_prediction and self.new_note:
-            print(self.past_predicted_values)
+        #if self.show_prediction and self.new_note:
+        print(self.past_predicted_values)
 
         # if self.write_csv and self.new_note:
         self.play_midi(note, volume)

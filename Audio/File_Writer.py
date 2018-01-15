@@ -27,5 +27,5 @@ class File_Writer:
         length = predicted_values['length']
         volume = predicted_values['volume']
 
-        result = '{}, {}, {}\n'.format(note, volume, length)
+        result = '{}, {}\n'.format(note, volume)
         self.file.write(result)
