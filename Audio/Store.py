@@ -43,6 +43,8 @@ class Store:
     @staticmethod
     def scale_volume(volume):
         volume = round(volume, 6) * 10 ** 3
+        if volume == 0:
+            volume = 0.001
         volume = math.log(volume)
         volume *= 15
         if volume > 127:
