@@ -49,7 +49,16 @@ class ConvolutionalRNN:
 
         concat = keras.layers.concatenate([vars()["output0"], vars()["output1"], vars()["output2"], vars()["output3"]])
 
-        tdd = keras.layers.TimeDistributed(Dense(self.branch_input_size))(concat)
-        output = LSTM(self.branch_input_size)(tdd)
+        # tdd = keras.layers.TimeDistributed(Dense(self.branch_input_size))(concat)
+
+        hidden10 = LSTM(128, return_sequences=True)(concat)
+        batchNorm10 = BatchNormalization()(hidden10)
+        dropout10 = Dropout(0.5)(batchNorm10)
+
+        hidden11 = LSTM(128, return_sequences=True)(dropout10)
+        batchNorm11 = BatchNormalization()(hidden11)
+        dropout11 = Dropout(0.5)(batchNorm11)
+
+        output = LSTM(128)(dropout11)
 
         return output
