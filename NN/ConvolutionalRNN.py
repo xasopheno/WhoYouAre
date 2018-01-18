@@ -5,7 +5,7 @@ from keras.layers.recurrent import LSTM
 import keras.backend as K
 
 
-class TimeSeriesModel:
+class ConvolutionalRNN:
     def __init__(self, visible, n_steps, n_features, n_divisions):
         self.visible = visible
         self.n_steps = n_steps
