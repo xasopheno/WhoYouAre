@@ -13,7 +13,7 @@ from Audio.File_Writer import File_Writer
 class Generator:
     def __init__(self, args=None):
         self.arguments = args
-        self.subdivision = 0.03
+        self.subdivision = 0.01
         self.isZero = True
         self.counter = 1
         self.past_pred = 0
@@ -66,9 +66,23 @@ class Generator:
 
             self.past_pred = self.store.note
 
-            self.play_value(pred)
+            self.play_filtered(pred)
 
-    def play_value(self, predicted_values):
+    def play_filtered(self, predicted_values):
+        note = predicted_values["note"]
+        volume = predicted_values["volume"]
+        length = predicted_values["length"]
+
+        if self.new_note and length > 50000:
+            print(self.past_predicted_values)
+
+            # if self.write_csv and self.new_note:
+            # self.play_midi(note, volume)
+            # self.writer.write_to_csv(self.past_predicted_values)
+
+        self.past_predicted_values = predicted_values
+
+    def play_sample(self, predicted_values):
         note = predicted_values["note"]
         volume = predicted_values["volume"]
 
