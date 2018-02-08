@@ -2,12 +2,13 @@ import os
 
 
 class File_Writer:
-    def __init__(self, filename=''):
+    def __init__(self, filename='', write=False):
         self.default_filename = 'output.csv'
         self.file_name = self.get_path(filename)
         self.file = open(self.file_name, "w")
 
-        self.prepare_file()
+        if write:
+            self.prepare_file()
 
     def get_path(self, filename):
         current_path = os.path.dirname(os.path.abspath(__file__))
@@ -20,12 +21,12 @@ class File_Writer:
         return path
 
     def prepare_file(self):
-        self.file.write('note, volume, length\n')
+        self.file.write('note, length, volume\n')
 
     def write_to_csv(self, predicted_values):
         note = predicted_values['note']
         length = predicted_values['length']
         volume = predicted_values['volume']
 
-        result = '{}, {}\n'.format(note, volume)
+        result = '{}, {}, {}\n'.format(note, length, volume)
         self.file.write(result)
