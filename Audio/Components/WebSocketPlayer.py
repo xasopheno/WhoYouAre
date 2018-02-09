@@ -1,6 +1,6 @@
 import os, sys
 from socketIO_client import SocketIO, LoggingNamespace
-from Audio.Components.logger import logger
+from Audio.Components.helpers.logger import logger
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
 
 

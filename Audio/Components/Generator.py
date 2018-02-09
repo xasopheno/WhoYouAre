@@ -1,5 +1,4 @@
 import os.path
-import argparse
 import pyaudio
 import sys
 import time
@@ -9,7 +8,7 @@ from Audio.Components.StreamToFrequency import StreamToFrequency
 from Audio.Components.Store import Store
 from Audio.Components.File_Writer import File_Writer
 from Audio.Components.WebSocketPlayer import WebSocketPlayer
-from Audio.Components.logger import logger
+from Audio.Components.helpers.logger import logger
 
 
 class Generator:
