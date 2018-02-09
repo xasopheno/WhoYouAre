@@ -1,6 +1,6 @@
 import os, sys
 from socketIO_client import SocketIO, LoggingNamespace
-from Audio.logger import logger
+from Audio.Components.logger import logger
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
 
 
@@ -17,6 +17,7 @@ class WebSocketPlayer:
 
     def connect_to_socket(self):
         socket = SocketIO('localhost', 9876, LoggingNamespace)
+        # socket = SocketIO('phone-synth-server.herokuapp.com', 80, LoggingNamespace)
         self.socket = socket
 
         logger('Connected to localhost:9876')

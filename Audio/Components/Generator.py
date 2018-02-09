@@ -4,12 +4,12 @@ import pyaudio
 import sys
 import time
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
-from Audio.MidiPlayer import MidiPlayer
-from Audio.StreamToFrequency import StreamToFrequency
-from Audio.Store import Store
-from Audio.File_Writer import File_Writer
-from Audio.WebSocketPlayer import WebSocketPlayer
-from Audio.logger import logger
+from Audio.Components.MidiPlayer import MidiPlayer
+from Audio.Components.StreamToFrequency import StreamToFrequency
+from Audio.Components.Store import Store
+from Audio.Components.File_Writer import File_Writer
+from Audio.Components.WebSocketPlayer import WebSocketPlayer
+from Audio.Components.logger import logger
 
 
 class Generator:
@@ -83,7 +83,6 @@ class Generator:
                 self.store.reset()
             self.play()
             time.sleep(.001)
-
 
     def beyond_threshold(self):
         threshold = True

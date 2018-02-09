@@ -1,6 +1,5 @@
 import os
 
-
 class File_Writer:
     def __init__(self, filename='', write=False):
         self.default_filename = 'output.csv'
@@ -11,11 +10,11 @@ class File_Writer:
             self.prepare_file()
 
     def get_path(self, filename):
-        current_path = os.path.dirname(os.path.abspath(__file__))
+        current_path = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'data'))
         if filename == '':
             filename = self.default_filename
 
-        path = current_path + '/data/' + filename
+        path = '{0}/{1}'.format(current_path, filename)
 
         print('Data will be written to:', path)
         return path
