@@ -1,5 +1,6 @@
 import os
 
+
 class File_Writer:
     def __init__(self, filename='', write=False):
         self.default_filename = 'output.csv'
