@@ -72,28 +72,19 @@ class Generator:
 
     def generate(self):
         while True:
-            if self.store.note == self.past_pred:
-                self.store.inc_length()
-                self.new_note = False
-                self.past_pred = self.store.note
-            else:
-                self.new_note = True
-                self.past_pred = self.store.note
-                self.store.reset()
+            time.sleep(.05)
             self.play()
-            time.sleep(.001)
 
     def beyond_threshold(self):
         threshold = True
         if self.filtered:
-            threshold = self.new_note
-
+            threshold = self.store.new_note
         return threshold
 
     def play(self):
         note = self.store.note
         volume = self.store.volume
-        length = self.store.length
+        # length = self.store.length
 
         if self.beyond_threshold():
             if self.write_csv:
