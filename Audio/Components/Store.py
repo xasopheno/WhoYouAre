@@ -3,6 +3,7 @@ import sys
 import math
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
 from Audio.Components.helpers.Timer import Timer
+import time
 
 
 class Store:
@@ -13,6 +14,7 @@ class Store:
         self.past_prediction = self.base_values()
         self.new_note = True
         self.volume_array = []
+
         self.timer = Timer()
 
 
@@ -37,6 +39,7 @@ class Store:
         note = int(note)
         self.__note = note
         self.is_new_note()
+
 
     @volume.setter
     def volume(self, volume):
@@ -67,10 +70,6 @@ class Store:
 
         return volume
 
-    def reset(self):
-        self.length = 1
-        self.volume_array = []
-
     def avg_volume(self):
         length = len(self.volume_array)
         total = sum(self.volume_array)
@@ -86,5 +85,4 @@ class Store:
             self.past_prediction = self.values
             self.past_prediction['length'] = self.timer.result
             self.timer.start_timer()
-            self.reset()
 

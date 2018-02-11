@@ -25,10 +25,6 @@ class Generator:
         self.store = Store()
         self.detector = StreamToFrequency(store=self.store, show_volume=self.display_volume)
 
-        self.subdivision = 0.01
-        self.volume_array = []
-        self.counter = 1
-
         """Players"""
         self.player = self.setup_midi_player()
         self.websocket_player = self.setup_websocket_player()
@@ -53,14 +49,14 @@ class Generator:
         if self.play_midi:
             try:
                 player = MidiPlayer(synth=synth)
-                logger('Connected to', synth)
+                logger('Connected to' + synth)
             except:
                 print('No midi destinations!')
         return player
 
     def generate(self):
         while True:
-            time.sleep(.05)
+            time.sleep(0.001)
             self.play()
 
     def beyond_threshold(self):
@@ -74,17 +70,19 @@ class Generator:
         volume = self.store.volume
         length = self.store.length
 
-        if self.beyond_threshold():
-            if self.write_csv:
-                self.writer.write_to_csv(self.store.past_prediction)
+        if self.store.new_note:
+            # TODO: Why is this needed?
+            if self.store.past_prediction['length'] > 0:
+                if self.write_csv:
+                    self.writer.write_to_csv(self.store.past_prediction)
 
-            if self.play_midi:
-                self.player.play(note, self.subdivision, volume)
+                if self.play_midi:
+                    self.player.play(note, self.store.length, volume)
 
-            if self.play_websocket:
-                self.websocket_player.play(note)
+                if self.play_websocket:
+                    self.websocket_player.play(note)
 
-            if self.show_prediction:
-                print(self.store.past_prediction)
+                if self.show_prediction:
+                    print(self.store.past_prediction)
 
         self.store.past_prediction = self.store.values
