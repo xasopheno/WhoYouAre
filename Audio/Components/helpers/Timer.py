@@ -3,12 +3,9 @@ import time
 
 class Timer:
     def __init__(self):
-        self.start = None
+        self.start = time.time()
 
-    def start_time(self):
-        return self.start
-
-    def start(self):
+    def start_timer(self):
         self.start = time.time()
 
     @property

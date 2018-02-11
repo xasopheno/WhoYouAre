@@ -10,9 +10,19 @@ class Store:
         self.__note = 0
         self.__volume = 0
         self.length = 0
-        self.past_pred = None
+        self.past_prediction = self.base_values()
         self.new_note = True
         self.volume_array = []
+        self.timer = Timer()
+
+
+    @staticmethod
+    def base_values():
+        return {
+            "note": 0,
+            "volume": 0,
+            "length": 0,
+        }
 
     @property
     def note(self):
@@ -43,9 +53,6 @@ class Store:
             "length": self.length,
         }
 
-    def inc_length(self):
-        self.length += 1
-
     @staticmethod
     def scale_volume(volume):
         volume = round(volume, 6) * 10 ** 3
@@ -71,12 +78,13 @@ class Store:
         return int(avg)
 
     def is_new_note(self):
-        if self.note == self.past_pred:
-            self.inc_length()
+        if self.note == self.past_prediction['note']:
             self.new_note = False
-            self.past_pred = self.note
+            self.past_prediction = self.values
         else:
             self.new_note = True
-            self.past_pred = self.note
+            self.past_prediction = self.values
+            self.past_prediction['length'] = self.timer.result
+            self.timer.start_timer()
             self.reset()
 

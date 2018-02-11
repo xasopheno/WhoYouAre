@@ -28,10 +28,6 @@ class Generator:
         self.subdivision = 0.01
         self.volume_array = []
         self.counter = 1
-        self.past_pred = 0
-        self.new_note = False
-
-        self.past_predicted_values = self.base_values()
 
         """Players"""
         self.player = self.setup_midi_player()
@@ -45,14 +41,6 @@ class Generator:
                                   input=True,
                                   output=False,
                                   stream_callback=self.detector.callback)
-
-    @staticmethod
-    def base_values():
-        return {
-            "note": 0,
-            "volume": 0,
-            "length": 0,
-        }
 
     def setup_websocket_player(self):
         wsp = WebSocketPlayer()
@@ -84,11 +72,11 @@ class Generator:
     def play(self):
         note = self.store.note
         volume = self.store.volume
-        # length = self.store.length
+        length = self.store.length
 
         if self.beyond_threshold():
             if self.write_csv:
-                self.writer.write_to_csv(self.past_predicted_values)
+                self.writer.write_to_csv(self.store.past_prediction)
 
             if self.play_midi:
                 self.player.play(note, self.subdivision, volume)
@@ -97,6 +85,6 @@ class Generator:
                 self.websocket_player.play(note)
 
             if self.show_prediction:
-                print(self.past_predicted_values)
+                print(self.store.past_prediction)
 
-        self.past_predicted_values = self.store.values
+        self.store.past_prediction = self.store.values
