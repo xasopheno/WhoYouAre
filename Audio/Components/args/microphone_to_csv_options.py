@@ -4,7 +4,7 @@ import argparse
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
 
 
-def get_user_options():
+def microphone_to_csv_options():
     a = argparse.ArgumentParser()
 
     a.add_argument("--volume",

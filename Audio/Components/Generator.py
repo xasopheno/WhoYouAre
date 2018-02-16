@@ -2,7 +2,6 @@ import os.path
 import pyaudio
 import sys
 import time
-sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
 from Audio.Components.MidiPlayer import MidiPlayer
 from Audio.Components.StreamToFrequency import StreamToFrequency
 from Audio.Components.Store import Store
@@ -56,8 +55,8 @@ class Generator:
 
     def generate(self):
         while True:
-            time.sleep(0.001)
             self.play()
+            time.sleep(0.01)
 
     def beyond_threshold(self):
         threshold = True
@@ -70,19 +69,19 @@ class Generator:
         volume = self.store.volume
         length = self.store.length
 
-        if self.store.new_note:
+        if True:
             # TODO: Why is this needed?
-            if self.store.past_prediction['length'] > 0:
-                if self.write_csv:
-                    self.writer.write_to_csv(self.store.past_prediction)
+            # if self.store.past_prediction['length'] > 0:
+            if self.write_csv:
+                self.writer.write_to_csv(self.store.past_prediction)
 
-                if self.play_midi:
-                    self.player.play(note, self.store.length, volume)
+            if self.play_midi:
+                self.player.play(note, self.store.length, volume)
 
-                if self.play_websocket:
-                    self.websocket_player.play(note)
+            if self.play_websocket:
+                self.websocket_player.play(note)
 
-                if self.show_prediction:
-                    print(self.store.past_prediction)
+            if self.show_prediction:
+                print(self.store.past_prediction)
 
         self.store.past_prediction = self.store.values

@@ -3,7 +3,6 @@ import sys
 import math
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
 from Audio.Components.helpers.Timer import Timer
-import time
 
 
 class Store:
@@ -84,5 +83,6 @@ class Store:
             self.new_note = True
             self.past_prediction = self.values
             self.past_prediction['length'] = self.timer.result
+            self.volume_array = []
             self.timer.start_timer()
 

@@ -11,5 +11,5 @@ class Timer:
     @property
     def result(self):
         end = time.time()
-        result = end - self.start
+        result = round(end - self.start, 2)
         return result

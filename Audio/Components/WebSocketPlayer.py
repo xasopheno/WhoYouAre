@@ -1,8 +1,8 @@
 import os, sys
+import math
 from socketIO_client import SocketIO, LoggingNamespace
-from Audio.Components.helpers.logger import logger
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
-
+from Audio.Components.helpers.logger import logger
 
 class WebSocketPlayer:
     def __init__(self):
@@ -12,8 +12,8 @@ class WebSocketPlayer:
     def midi_to_hertz(midi):
         if midi == 0:
             return 0
-        g = 2**(1/12)
-        return 440*g**(midi-69)
+        f = 2**((midi-69)/12) * 440
+        return f
 
     def connect_to_socket(self):
         socket = SocketIO('localhost', 9876, LoggingNamespace)
