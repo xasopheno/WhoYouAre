@@ -11,7 +11,7 @@ osc = SineOsc()
 p = pyaudio.PyAudio()
 stream = p.open(format=pyaudio.paFloat32,
                 channels=1,
-                rate=44100,
+                rate=176400,
                 output=1,
                 )
 

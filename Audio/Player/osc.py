@@ -1,50 +1,66 @@
 from math import pi
+import threading
 import math
 import numpy as np
 import random
+import time
+import pyaudio
 
-class SineOsc:
-    def __init__(self):
-        self.rate = 44100
-        self.freq = 20
+
+class SineOsc():
+    def __init__(self, s):
+        self.rate = 176400
+        self.freq = 100
+        self.last_freq = 0
+        self.stream = s
+
+        thread = threading.Thread(target=self.update_freq, args=())
+        thread.daemon = True
+        thread.start()
 
     def wave(self, frequency):
         """produces sine across np array"""
-
         length = math.floor(self.rate/frequency)
         diff = self.rate - length * frequency
         error = diff/length
-        print(frequency, error)
-        factor = float(frequency + error) * (pi * 2) / self.rate
+        frequency += error
+        factor = float(frequency) * (pi * 2) / self.rate
         waveform = np.sin(np.arange(length) * factor)
-        # print(length, frequency, factor)
 
         return waveform
 
-    def start_osc(self, stream):
-        count = 0
-        while self.freq < 1200:
-            wave = self.wave(self.freq)
-            stream.write(wave.astype(np.float32).tostring())
+    def write(self, freq):
+        wave = self.wave(freq) / (freq/100)
+        self.stream.write(wave.astype(np.float32).tostring())
 
-            if count % 1 == 0:
-                self.freq += 1
-            # print(count)
-            count += 1
-
-
-            # self.waveform[300] = np.multiply(waveform[:attack], fade_in)
-
-
-        # count = 0
-        # for i in wave1:
-        #     if -.001 < i < .001:
-        #         count += 1
-        #         print(count, i)
+    def slide(self):
+        diff = self.freq - self.last_freq
+        if diff > 0:
+            while self.last_freq < self.freq:
+                self.last_freq += 20
+                self.write(self.last_freq)
+        else:
+            while self.last_freq > self.freq:
+                self.last_freq -= 20
+                self.write(self.last_freq)
 
 
+    def update_freq(self):
+        print('update')
+        while True:
+            if self.freq != self.last_freq:
+                self.slide()
+                self.last_freq = self.freq
+            self.write(self.freq)
 
+p = pyaudio.PyAudio()
+stream = p.open(format=pyaudio.paFloat32,
+                channels=1,
+                rate=176400,
+                output=1,
+                )
+osc = SineOsc(stream)
 
-
-        # while True:
-        #     wave = self.wave(self.freq, length, self.sample_rate)
+while True:
+    osc.freq = random.randint(50, 1200)
+    time.sleep(.5)
