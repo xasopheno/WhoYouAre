@@ -11,7 +11,7 @@ class SineOsc():
     def __init__(self, s):
         self.rate = 176400
         self.freq = 100
-        self.last_freq = 0
+        self.last_freq = 100
         self.stream = s
 
         thread = threading.Thread(target=self.update_freq, args=())
@@ -30,7 +30,7 @@ class SineOsc():
         return waveform
 
     def write(self, freq):
-        wave = self.wave(freq) / (freq/100)
+        wave = self.wave(freq) / (freq * .01)
         self.stream.write(wave.astype(np.float32).tostring())
 
     def slide(self):
@@ -62,5 +62,5 @@ stream = p.open(format=pyaudio.paFloat32,
 osc = SineOsc(stream)
 
 while True:
-    osc.freq = random.randint(50, 1200)
+    osc.freq = random.randint(100, 1200)
     time.sleep(.5)
