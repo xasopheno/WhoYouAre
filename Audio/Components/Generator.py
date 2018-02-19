@@ -1,6 +1,6 @@
+import sys
 import os.path
 import pyaudio
-import sys
 import time
 from Audio.Components.MidiPlayer import MidiPlayer
 from Audio.Components.StreamToFrequency import StreamToFrequency
@@ -8,6 +8,8 @@ from Audio.Components.Store import Store
 from Audio.Components.File_Writer import File_Writer
 from Audio.Components.WebSocketPlayer import WebSocketPlayer
 from Audio.Components.helpers.logger import logger
+from Audio.Player.osc import SineOsc
+from Audio.Components.helpers.midi_to_hertz import midi_to_hertz
 
 
 class Generator:
@@ -19,12 +21,14 @@ class Generator:
         self.play_websocket = args.play_websocket
         self.display_volume = args.display_volume
         self.filtered = args.filtered
+        self.wave = args.wave
 
         self.writer = File_Writer(write=self.write_csv)
         self.store = Store()
         self.detector = StreamToFrequency(store=self.store, show_volume=self.display_volume)
 
         """Players"""
+        self.osc = SineOsc()
         self.player = self.setup_midi_player()
         self.websocket_player = self.setup_websocket_player()
 
@@ -56,7 +60,7 @@ class Generator:
     def generate(self):
         while True:
             self.play()
-            time.sleep(0.01)
+            time.sleep(0.0001)
 
     def beyond_threshold(self):
         threshold = True
@@ -64,24 +68,32 @@ class Generator:
             threshold = self.store.new_note
         return threshold
 
+    @staticmethod
+    def most_common(lst):
+        return max(set(lst), key=lst.count)
+
     def play(self):
         note = self.store.note
         volume = self.store.volume
         length = self.store.length
 
-        if True:
-            # TODO: Why is this needed?
-            # if self.store.past_prediction['length'] > 0:
-            if self.write_csv:
-                self.writer.write_to_csv(self.store.past_prediction)
+        if self.beyond_threshold():
+            if self.store.past_prediction['length'] > 0:
+                if self.write_csv:
+                    self.writer.write_to_csv(self.store.past_prediction)
 
-            if self.play_midi:
-                self.player.play(note, self.store.length, volume)
+                if self.play_midi:
+                    self.player.play(note, self.store.length, volume)
 
-            if self.play_websocket:
-                self.websocket_player.play(note)
+                if self.play_websocket:
+                    self.websocket_player.play(note)
 
-            if self.show_prediction:
-                print(self.store.past_prediction)
+                if self.show_prediction:
+                    print(self.store.past_prediction)
+
+                if self.wave:
+                    hertz = midi_to_hertz(note)
+                    self.osc.freq = hertz
+                    # self.osc.freq = note
 
         self.store.past_prediction = self.store.values

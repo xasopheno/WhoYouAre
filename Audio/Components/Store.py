@@ -1,8 +1,9 @@
 import os
 import sys
 import math
+import time
+from collections import deque
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
-from Audio.Components.helpers.Timer import Timer
 
 
 class Store:
@@ -13,8 +14,10 @@ class Store:
         self.past_prediction = self.base_values()
         self.new_note = True
         self.volume_array = []
-
-        self.timer = Timer()
+        self.start_time = time.time()
+        self.past_notes_array = deque(maxlen=10)
+        self.past_notes_array.appendleft(0)
+        self.past_length = 0
 
 
     @staticmethod
@@ -36,6 +39,7 @@ class Store:
     @note.setter
     def note(self, note):
         note = int(note)
+        self.past_notes_array.appendleft(note)
         self.__note = note
         self.is_new_note()
 
@@ -50,7 +54,7 @@ class Store:
     @property
     def values(self):
         return {
-            "note": self.note,
+            "note": self.most_common(self.past_notes_array),
             "volume": self.avg_volume(),
             "length": self.length,
         }
@@ -75,14 +79,23 @@ class Store:
         avg = total/length if length else 0
         return int(avg)
 
+    @staticmethod
+    def most_common(lst):
+        return max(set(lst), key=lst.count)
+
     def is_new_note(self):
-        if self.note == self.past_prediction['note']:
+        if self.most_common(self.past_notes_array) == self.past_prediction['note']:
             self.new_note = False
             self.past_prediction = self.values
         else:
+            self.past_prediction = {
+                "note": self.past_prediction['note'],
+                "volume": self.past_prediction['volume'],
+                "length": time.time() - self.start_time,
+            }
+            self.start_time = time.time()
             self.new_note = True
-            self.past_prediction = self.values
-            self.past_prediction['length'] = self.timer.result
+
             self.volume_array = []
-            self.timer.start_timer()
+
 

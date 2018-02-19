@@ -55,4 +55,12 @@ def microphone_to_csv_options():
                    type=bool,
                    nargs=1)
 
+    a.add_argument("--wave",
+                   help="Specify if frequencies should be sent to the python oscillator).",
+                   dest="wave",
+                   required=False,
+                   default=False,
+                   type=bool,
+                   nargs=1)
+
     return a.parse_args()

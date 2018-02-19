@@ -15,4 +15,20 @@ def player_options():
                    type=str,
                    nargs=1)
 
+    a.add_argument("--play_ws",
+                   help="Play with ws_player",
+                   dest="play_ws",
+                   required=False,
+                   default=False,
+                   type=bool,
+                   nargs=1)
+
+    a.add_argument("--play_pyosc",
+                   help="Play with pyosc I made",
+                   dest="play_pyosc",
+                   required=False,
+                   default=False,
+                   type=bool,
+                   nargs=1)
+
     return a.parse_args()

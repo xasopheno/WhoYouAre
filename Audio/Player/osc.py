@@ -16,13 +16,13 @@ class SineOsc:
                              output=1)
 
         self.tau = math.pi * 2
-        self.chunk_size = 1
+        self.chunk_size = 200
         self.freq = 0.0
         self.phase = 0.0
         self.last_freq = 0
 
-        self.attack = 200
-        self.decay = 800
+        self.attack = 600
+        self.decay = 1000
 
         self.fade_in = np.arange(0., 1., 1./self.attack)
         self.fade_out = np.arange(1., 0., -1./self.decay)
