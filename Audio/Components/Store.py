@@ -84,8 +84,11 @@ class Store:
         raw = time.time() - self.start_time
         if raw < 1:
             return round(raw, 2)
-        else:
+        elif:
+            raw > 1 and raw is < 5:
             return round(raw, 1)
+        else:
+            return 5.0
 
     def is_new_note(self):
         if self.most_common() == self.past_prediction['note']:

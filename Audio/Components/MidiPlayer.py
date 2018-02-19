@@ -27,7 +27,6 @@ class MidiPlayer:
                 self.play_synth(num, length, velocity)
 
     def play_synth(self, num, length, velocity=100):
-        print(num, length, velocity)
         note_on = [0x90, num, velocity]
         note_off = [0x80, num, 0]
         self.midi_out.send_message(note_on)
