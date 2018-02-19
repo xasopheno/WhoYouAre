@@ -21,7 +21,7 @@ class SineOsc:
         self.phase = 0.0
         self.last_freq = 0
 
-        self.attack = 1000
+        self.attack = 3000
         self.decay = 2000
 
         self.fade_in = np.arange(0., 1., 1./self.attack)
@@ -52,14 +52,14 @@ class SineOsc:
         diff = self.last_freq - self.freq
         if diff > 0:
             while self.last_freq > self.freq:
-                chunk = self.make_chunk(self.last_freq)
-                self.write_to_stream(chunk, self.last_freq)
-                self.last_freq -= abs(diff) * .2
+                chunk = self.make_chunk(self.last_freq, chunk_size=self.chunk_size/4)
+                self.write_to_stream(chunk, self.last_freq, chunk_size=self.chunk_size/4)
+                self.last_freq -= abs(diff) * .05
         else:
             while self.last_freq < self.freq:
                 chunk = self.make_chunk(self.last_freq)
                 self.write_to_stream(chunk, self.last_freq)
-                self.last_freq += abs(diff) * .2
+                self.last_freq += abs(diff) * .05
 
     def write_attack(self):
         chunk = self.make_chunk(self.freq, chunk_size=self.attack)
@@ -74,10 +74,14 @@ class SineOsc:
     def manage_transition(self):
         if self.last_freq != self.freq:
             if self.freq == 0:
+                print('decay')
                 self.write_decay()
             elif self.last_freq == 0:
+                print('attack')
                 self.write_attack()
             else:
+                print(self.last_freq, self.freq)
+                print('portamento')
                 self.portamento()
         self.last_freq = self.freq
 

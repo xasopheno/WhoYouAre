@@ -14,7 +14,6 @@ class CSVPlayer:
         self.play_ws = args.play_ws
         self.play_pyosc = args.play_pyosc
 
-
         # self.ws_player = WebSocketPlayer()
         # self.ws_player.connect_to_socket()
 
@@ -33,17 +32,20 @@ class CSVPlayer:
     def play_csv(self):
         with open(self.file_path, 'r') as f:
             next(f)
-            for line in f:
-                print(line)
-                # print(line)
-                line = line.split(',')
-                midi = line[0]
-                length = line[1]
-                volume = line[2]
-                if self.play_ws:
-                    self.ws_player.play(int(midi))
-                if self.play_pyosc:
-                    self.pyosc_player.freq = midi_to_hertz(int(midi))
-                time.sleep(float(length))
-            self.pyosc_player.freq = 0
-            time.sleep(.5)
+            while True:
+                for line in f:
+                    print(line)
+                    # print(line)
+                    line = line.split(',')
+                    midi = line[0]
+                    length = line[1]
+                    volume = line[2]
+                    if self.play_ws:
+                        self.ws_player.play(int(midi))
+                    if self.play_pyosc:
+                        if float(length) < 0.2:
+                            midi = 0
+                        self.pyosc_player.freq = midi_to_hertz(int(midi) + 12)
+                    time.sleep(float(length))
+                self.pyosc_player.freq = 0
+                time.sleep(.5)

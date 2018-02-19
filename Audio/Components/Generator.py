@@ -47,12 +47,12 @@ class Generator:
             wsp.connect_to_socket()
         return wsp
 
-    def setup_midi_player(self, synth='Volca'):
+    def setup_midi_player(self):
         player = None
         if self.play_midi:
             try:
-                player = MidiPlayer(synth=synth)
-                logger('Connected to' + synth)
+                player = MidiPlayer()
+                logger('Connected')
             except:
                 print('No midi destinations!')
         return player
