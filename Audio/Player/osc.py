@@ -21,8 +21,8 @@ class SineOsc:
         self.phase = 0.0
         self.last_freq = 0
 
-        self.attack = 600
-        self.decay = 1000
+        self.attack = 1000
+        self.decay = 2000
 
         self.fade_in = np.arange(0., 1., 1./self.attack)
         self.fade_out = np.arange(1., 0., -1./self.decay)

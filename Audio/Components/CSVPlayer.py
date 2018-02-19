@@ -46,3 +46,4 @@ class CSVPlayer:
                     self.pyosc_player.freq = midi_to_hertz(int(midi))
                 time.sleep(float(length))
             self.pyosc_player.freq = 0
+            time.sleep(.5)

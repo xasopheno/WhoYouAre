@@ -15,10 +15,8 @@ class Store:
         self.new_note = True
         self.volume_array = []
         self.start_time = time.time()
-        self.past_notes_array = deque(maxlen=10)
-        self.past_notes_array.appendleft(0)
+        self.past_notes_array = deque([0], maxlen=10)
         self.past_length = 0
-
 
     @staticmethod
     def base_values():
@@ -54,7 +52,7 @@ class Store:
     @property
     def values(self):
         return {
-            "note": self.most_common(self.past_notes_array),
+            "note": self.most_common(),
             "volume": self.avg_volume(),
             "length": self.length,
         }
@@ -79,19 +77,25 @@ class Store:
         avg = total/length if length else 0
         return int(avg)
 
-    @staticmethod
-    def most_common(lst):
-        return max(set(lst), key=lst.count)
+    def most_common(self):
+        return max(set(self.past_notes_array), key=self.past_notes_array.count)
+
+    def rounded_length(self):
+        raw = time.time() - self.start_time
+        if raw < 1:
+            return round(raw, 2)
+        else:
+            return round(raw, 1)
 
     def is_new_note(self):
-        if self.most_common(self.past_notes_array) == self.past_prediction['note']:
+        if self.most_common() == self.past_prediction['note']:
             self.new_note = False
             self.past_prediction = self.values
         else:
             self.past_prediction = {
                 "note": self.past_prediction['note'],
                 "volume": self.past_prediction['volume'],
-                "length": time.time() - self.start_time,
+                "length": self.rounded_length()
             }
             self.start_time = time.time()
             self.new_note = True
