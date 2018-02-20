@@ -1,17 +1,19 @@
-import sys
-import os.path
 import numpy as np
 import pyaudio
 import time
-from keras.models import model_from_json
 from Audio.Components.MidiPlayer import MidiPlayer
 from Audio.Components.StreamToFrequency import StreamToFrequency
 from Audio.Components.Store import Store
 from Audio.Components.File_Writer import File_Writer
 from Audio.Components.WebSocketPlayer import WebSocketPlayer
+
 from Audio.Components.helpers.logger import logger
-from Audio.Player.osc import SineOsc
+from Audio.Components.helpers.load_model import load_model
 from Audio.Components.helpers.midi_to_hertz import midi_to_hertz
+from Audio.Components.helpers.prepare_arrays import prepare_notes, prepare_lengths
+from Audio.Components.helpers.sample import sample
+
+from Audio.Player.osc import SineOsc
 
 
 class Generator:
@@ -38,8 +40,8 @@ class Generator:
         """Trained_Model"""
         if args.nn:
             self.n_time_steps = 2
-            self.notes = self.prepare_notes()
-            self.lengths = self.prepare_lengths()
+            self.notes = prepare_notes()
+            self.lengths = prepare_lengths()
 
             self.note_index = dict((c, i) for i, c in enumerate(self.notes))
             self.index_note = dict((i, c) for i, c in enumerate(self.notes))
@@ -47,7 +49,7 @@ class Generator:
             self.length_index = dict((c, i) for i, c in enumerate(self.lengths))
             self.index_length = dict((i, c) for i, c in enumerate(self.lengths))
 
-            self.model = self.load_model()
+            self.model = load_model()
 
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(format=pyaudio.paFloat32,
@@ -57,16 +59,6 @@ class Generator:
                                   input=True,
                                   output=False,
                                   stream_callback=self.detector.callback)
-
-    @staticmethod
-    def load_model():
-        json_file = open('model.json', 'r')
-        loaded_model_json = json_file.read()
-        json_file.close()
-        loaded_model = model_from_json(loaded_model_json)
-        loaded_model.load_weights("model.h5")
-        print("Loaded model from disk")
-        return loaded_model
 
     def setup_websocket_player(self):
         wsp = WebSocketPlayer()
@@ -95,10 +87,6 @@ class Generator:
             threshold = self.store.new_note
         return threshold
 
-    @staticmethod
-    def most_common(lst):
-        return max(set(lst), key=lst.count)
-
     def make_prediction(self):
         note_pred = np.zeros((1, self.n_time_steps, len(self.notes)))
         length_pred = np.zeros((1, self.n_time_steps, len(self.lengths)))
@@ -114,42 +102,13 @@ class Generator:
         note_pred = prediction[0][0]
         length_pred = prediction[1][0]
 
-        note_index_from_sample = self.sample(note_pred, 1.0)
+        note_index_from_sample = sample(note_pred, 1.0)
         note_prediction = self.index_note[note_index_from_sample]
 
-        length_index_from_sample = self.sample(length_pred, 1.0)
+        length_index_from_sample = sample(length_pred, 1.0)
         length_prediction = self.index_length[length_index_from_sample]
 
         return note_prediction, length_prediction
-
-    @staticmethod
-    def prepare_notes():
-        notes = []
-        for i in range(0, 128):
-            notes.append(i)
-        return notes
-
-    @staticmethod
-    def prepare_lengths():
-        lengths = []
-        first_field = np.arange(0.0, 1., 0.01)
-        for value in list(first_field):
-            lengths.append(round(value, 2))
-
-        second_field = np.arange(1.0, 5.1, 0.1)
-        for value in list(second_field):
-            lengths.append(round(value, 1))
-
-        return lengths
-
-    def sample(self, preds, temperature=1.0):
-        # helper function to sample an index from a probability array
-        preds = np.asarray(preds).astype('float64')
-        preds = np.log(preds) / temperature
-        exp_preds = np.exp(preds)
-        preds = exp_preds / np.sum(exp_preds)
-        probas = np.random.multinomial(1, preds, 1)
-        return np.argmax(probas)
 
     def play(self):
         note = self.store.note
