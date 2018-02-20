@@ -6,13 +6,14 @@ import csv
 
 
 class MidiPlayer:
-    def __init__(self, synth='Volca'):
+    def __init__(self, synth=None):
         self.synth = synth
         self.midi_out = self.setupMidi()
 
     def setupMidi(self):
         midi_out = rtmidi.MidiOut()
-        # available_ports = midiout.get_ports()
+        available_ports = midi_out.get_ports()
+        print(available_ports)
         midi_out.open_port(0)
         return midi_out
 
@@ -46,18 +47,20 @@ class MidiPlayer:
 
     def play_csv(self):
         with open('Audio/data/output.csv', 'r') as f:
-            reader = csv.reader(f, delimiter=',')
-            next(reader)
-            for row in reader:
-                note = int(row[0])
-                volume = int(row[1])
-                length = int(row[2])
-                print(note, volume, length)
+            next(f)
+            for line in f:
+                print(line)
+                # print(line)
+                line = line.split(',')
+                midi = int(line[0])
+                length = float(line[1].strip())
+                volume = int(line[2])
+                # print(midi, volume, length)
 
                 try:
-                    self.play(note, .03, volume)
+                    self.play(midi, length, volume)
                 except:
-                    print('value was unplayable', note, length, volume)
+                    print('value was unplayable', midi, length, volume)
 
 
 if __name__ == '__main__':

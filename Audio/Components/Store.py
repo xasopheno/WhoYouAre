@@ -1,13 +1,39 @@
+import os
+import sys
 import math
+import time
+from collections import deque
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
 
 
 class Store:
     def __init__(self):
         self.__note = 0
         self.__volume = 0
-        self.length = 1
-
+        self.length = 0
+        self.past_prediction = self.base_values()
+        self.new_note = True
         self.volume_array = []
+        self.start_time = time.time()
+        self.past_notes_array = deque([0], maxlen=10)
+        self.past_length = 0
+        self.note_ring_buffer = self.prepare_ring_buffer()
+        self.length_ring_buffer = self.prepare_ring_buffer()
+
+    @staticmethod
+    def prepare_ring_buffer():
+        rb = deque(maxlen=12)
+        for i in range(5):
+            rb.appendleft(0)
+        return rb
+
+    @staticmethod
+    def base_values():
+        return {
+            "note": 0,
+            "volume": 0,
+            "length": 0,
+        }
 
     @property
     def note(self):
@@ -20,7 +46,9 @@ class Store:
     @note.setter
     def note(self, note):
         note = int(note)
+        self.past_notes_array.appendleft(note)
         self.__note = note
+        self.is_new_note()
 
     @volume.setter
     def volume(self, volume):
@@ -32,13 +60,10 @@ class Store:
     @property
     def values(self):
         return {
-            "note": self.note,
+            "note": self.most_common(),
             "volume": self.avg_volume(),
             "length": self.length,
         }
-
-    def inc_length(self):
-        self.length += 1
 
     @staticmethod
     def scale_volume(volume):
@@ -54,12 +79,41 @@ class Store:
 
         return volume
 
-    def reset(self):
-        self.length = 1
-        self.volume_array = []
-
     def avg_volume(self):
         length = len(self.volume_array)
         total = sum(self.volume_array)
         avg = total/length if length else 0
         return int(avg)
+
+    def most_common(self):
+        return max(set(self.past_notes_array), key=self.past_notes_array.count)
+
+    def rounded_length(self):
+        raw = time.time() - self.start_time
+        if raw < 1:
+            return round(raw, 2)
+        elif 1 <= raw < 5:
+            return round(raw, 1)
+        else:
+            return 5.0
+
+    def is_new_note(self):
+        if self.most_common() == self.past_prediction['note']:
+            self.new_note = False
+            self.past_prediction = self.values
+        else:
+            length = self.rounded_length()
+            self.past_prediction = {
+                "note": self.past_prediction['note'],
+                "volume": self.past_prediction['volume'],
+                "length": length
+            }
+
+            self.note_ring_buffer.append(self.most_common())
+            self.length_ring_buffer.append(length)
+            self.start_time = time.time()
+            self.new_note = True
+
+            self.volume_array = []
+
+

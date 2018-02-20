@@ -1,8 +1,9 @@
 import os
 
+
 class File_Writer:
     def __init__(self, filename='', write=False):
-        self.default_filename = 'output.csv'
+        self.default_filename = 'output_new.csv'
         self.file_name = self.get_path(filename)
         self.file = open(self.file_name, "w")
 
