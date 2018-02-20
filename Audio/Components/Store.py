@@ -17,6 +17,14 @@ class Store:
         self.start_time = time.time()
         self.past_notes_array = deque([0], maxlen=10)
         self.past_length = 0
+        self.ring_buffer = self.prepare_ring_buffer()
+
+    @staticmethod
+    def prepare_ring_buffer():
+        rb = deque(maxlen=5)
+        for i in range(5):
+            rb.appendleft(0)
+        return rb
 
     @staticmethod
     def base_values():
@@ -84,8 +92,7 @@ class Store:
         raw = time.time() - self.start_time
         if raw < 1:
             return round(raw, 2)
-        elif:
-            raw > 1 and raw is < 5:
+        elif 1 <= raw < 5:
             return round(raw, 1)
         else:
             return 5.0

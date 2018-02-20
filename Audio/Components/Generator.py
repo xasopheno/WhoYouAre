@@ -2,6 +2,7 @@ import sys
 import os.path
 import pyaudio
 import time
+from keras.models import model_from_json
 from Audio.Components.MidiPlayer import MidiPlayer
 from Audio.Components.StreamToFrequency import StreamToFrequency
 from Audio.Components.Store import Store
@@ -21,6 +22,7 @@ class Generator:
         self.play_websocket = args.play_websocket
         self.display_volume = args.display_volume
         self.filtered = args.filtered
+        self.nn = args.nn
         self.wave = args.wave
 
         self.writer = File_Writer(write=self.write_csv)
@@ -72,6 +74,18 @@ class Generator:
     def most_common(lst):
         return max(set(lst), key=lst.count)
 
+    def play_nn(self):
+        pass
+
+    def sample(self, preds, temperature=1.0):
+        # helper function to sample an index from a probability array
+        preds = np.asarray(preds).astype('float64')
+        preds = np.log(preds) / temperature
+        exp_preds = np.exp(preds)
+        preds = exp_preds / np.sum(exp_preds)
+        probas = np.random.multinomial(1, preds, 1)
+        return np.argmax(probas)
+
     def play(self):
         note = self.store.note
         volume = self.store.volume
@@ -95,5 +109,8 @@ class Generator:
                     hertz = midi_to_hertz(note)
                     self.osc.freq = hertz
                     # self.osc.freq = note
+
+                if self.nn:
+                    self.play_nn()
 
         self.store.past_prediction = self.store.values
