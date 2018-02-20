@@ -39,7 +39,7 @@ class Generator:
 
         """Trained_Model"""
         if args.nn:
-            self.n_time_steps = 2
+            self.n_time_steps = 12
             self.notes = prepare_notes()
             self.lengths = prepare_lengths()
 
@@ -137,6 +137,9 @@ class Generator:
                 if self.nn:
                     predicted_note, predicted_length = self.make_prediction()
                     print(predicted_note, predicted_length)
-                    self.player.play(predicted_note, predicted_length, 100)
+                    velocity = 100
+                    if predicted_note > 70:
+                        predicted_note = 0
+                    self.player.play(predicted_note, predicted_length, velocity)
 
         self.store.past_prediction = self.store.values

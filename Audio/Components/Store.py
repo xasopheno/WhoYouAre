@@ -22,7 +22,7 @@ class Store:
 
     @staticmethod
     def prepare_ring_buffer():
-        rb = deque(maxlen=2)
+        rb = deque(maxlen=12)
         for i in range(5):
             rb.appendleft(0)
         return rb
@@ -49,7 +49,6 @@ class Store:
         self.past_notes_array.appendleft(note)
         self.__note = note
         self.is_new_note()
-
 
     @volume.setter
     def volume(self, volume):
