@@ -76,7 +76,7 @@ class Generator:
 
     def setup_midi_player(self):
         player = None
-        if self.play_midi:
+        if self.play_midi or self.nn:
             try:
                 player = MidiPlayer()
                 logger('Connected')
@@ -109,17 +109,18 @@ class Generator:
         for t, event in enumerate(self.store.length_ring_buffer):
             length_pred[0, t, self.length_index[event]] = 1.
 
-        print(note_pred)
-        print(length_pred)
+        prediction = self.model.predict([note_pred, length_pred], verbose=0)
 
-        # note_pred = self.model.predict(note_pred, verbose=0)[0]
-        #
-        # note_index_from_sample = self.sample(note_pred, 1.0)
-        # note_prediction = self.index_note[note_index_from_sample]
-        #
-        #
-        #
-        # return note_prediction, length_prediction
+        note_pred = prediction[0][0]
+        length_pred = prediction[1][0]
+
+        note_index_from_sample = self.sample(note_pred, 1.0)
+        note_prediction = self.index_note[note_index_from_sample]
+
+        length_index_from_sample = self.sample(length_pred, 1.0)
+        length_prediction = self.index_length[length_index_from_sample]
+
+        return note_prediction, length_prediction
 
     @staticmethod
     def prepare_notes():
@@ -175,6 +176,8 @@ class Generator:
                     # self.osc.freq = note
 
                 if self.nn:
-                    self.make_prediction()
+                    predicted_note, predicted_length = self.make_prediction()
+                    print(predicted_note, predicted_length)
+                    self.player.play(predicted_note, predicted_length, 100)
 
         self.store.past_prediction = self.store.values
