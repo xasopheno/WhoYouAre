@@ -100,18 +100,18 @@ class Generator:
         return max(set(lst), key=lst.count)
 
     def make_prediction(self):
-        print(self.store.note_ring_buffer)
-        print(self.store.length_ring_buffer)
-
         note_pred = np.zeros((1, self.n_time_steps, len(self.notes)))
         length_pred = np.zeros((1, self.n_time_steps, len(self.lengths)))
         #
-        # for t, event in enumerate(current_phrase):
-        #     note_pred[0, t, self.note_index[event]] = 1.
-        #
-        # for t, event in enumerate(current_phrase):
-        #     length_pred[0, t, self.length_index[event]] = 1.
-        #
+        for t, event in enumerate(self.store.note_ring_buffer):
+            note_pred[0, t, self.note_index[event]] = 1.
+
+        for t, event in enumerate(self.store.length_ring_buffer):
+            length_pred[0, t, self.length_index[event]] = 1.
+
+        print(note_pred)
+        print(length_pred)
+
         # note_pred = self.model.predict(note_pred, verbose=0)[0]
         #
         # note_index_from_sample = self.sample(note_pred, 1.0)

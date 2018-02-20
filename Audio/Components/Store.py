@@ -22,7 +22,7 @@ class Store:
 
     @staticmethod
     def prepare_ring_buffer():
-        rb = deque(maxlen=5)
+        rb = deque(maxlen=2)
         for i in range(5):
             rb.appendleft(0)
         return rb
