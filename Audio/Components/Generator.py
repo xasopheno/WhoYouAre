@@ -1,5 +1,6 @@
 import sys
 import os.path
+import numpy as np
 import pyaudio
 import time
 from keras.models import model_from_json
@@ -34,6 +35,10 @@ class Generator:
         self.player = self.setup_midi_player()
         self.websocket_player = self.setup_websocket_player()
 
+        """Trained_Model"""
+        if args.nn:
+            self.model = self.load_model()
+
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(format=pyaudio.paFloat32,
                                   channels=1,
@@ -42,6 +47,16 @@ class Generator:
                                   input=True,
                                   output=False,
                                   stream_callback=self.detector.callback)
+
+    @staticmethod
+    def load_model():
+        json_file = open('model.json', 'r')
+        loaded_model_json = json_file.read()
+        json_file.close()
+        loaded_model = model_from_json(loaded_model_json)
+        loaded_model.load_weights("model.h5")
+        print("Loaded model from disk")
+        return loaded_model
 
     def setup_websocket_player(self):
         wsp = WebSocketPlayer()
@@ -74,8 +89,28 @@ class Generator:
     def most_common(lst):
         return max(set(lst), key=lst.count)
 
-    def play_nn(self):
-        pass
+    def make_prediction(self, current_phrase):
+        x_pred = np.zeros((1, self.n_time_steps, len(self.notes)))
+
+        for t, event in enumerate(current_phrase):
+            x_pred[0, t, self.note_index[event]] = 1.
+
+        note_pred = self.loaded_model.predict(x_pred, verbose=0)[0]
+
+        note_index_from_sample = self.sample(note_pred, 1.0)
+        note_prediction = self.index_note[note_index_from_sample]
+        self.store.update_neural_path(note_prediction)
+
+        freq_pred = self.midi_to_hertz(note_prediction)
+        return freq_pred
+
+    @staticmethod
+    def prepare_notes():
+        notes = []
+        for i in range(0, 128):
+            notes.append(i)
+        print(notes)
+        return notes
 
     def sample(self, preds, temperature=1.0):
         # helper function to sample an index from a probability array

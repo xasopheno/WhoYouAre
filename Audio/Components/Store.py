@@ -107,6 +107,7 @@ class Store:
                 "volume": self.past_prediction['volume'],
                 "length": self.rounded_length()
             }
+            self.ring_buffer.append(self.past_prediction['note'])
             self.start_time = time.time()
             self.new_note = True
 
