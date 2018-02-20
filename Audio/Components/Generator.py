@@ -37,6 +37,16 @@ class Generator:
 
         """Trained_Model"""
         if args.nn:
+            self.n_time_steps = 2
+            self.notes = self.prepare_notes()
+            self.lengths = self.prepare_lengths()
+
+            self.note_index = dict((c, i) for i, c in enumerate(self.notes))
+            self.index_note = dict((i, c) for i, c in enumerate(self.notes))
+
+            self.length_index = dict((c, i) for i, c in enumerate(self.lengths))
+            self.index_length = dict((i, c) for i, c in enumerate(self.lengths))
+
             self.model = self.load_model()
 
         self.p = pyaudio.PyAudio()
@@ -89,28 +99,47 @@ class Generator:
     def most_common(lst):
         return max(set(lst), key=lst.count)
 
-    def make_prediction(self, current_phrase):
-        x_pred = np.zeros((1, self.n_time_steps, len(self.notes)))
+    def make_prediction(self):
+        print(self.store.note_ring_buffer)
+        print(self.store.length_ring_buffer)
 
-        for t, event in enumerate(current_phrase):
-            x_pred[0, t, self.note_index[event]] = 1.
-
-        note_pred = self.loaded_model.predict(x_pred, verbose=0)[0]
-
-        note_index_from_sample = self.sample(note_pred, 1.0)
-        note_prediction = self.index_note[note_index_from_sample]
-        self.store.update_neural_path(note_prediction)
-
-        freq_pred = self.midi_to_hertz(note_prediction)
-        return freq_pred
+        note_pred = np.zeros((1, self.n_time_steps, len(self.notes)))
+        length_pred = np.zeros((1, self.n_time_steps, len(self.lengths)))
+        #
+        # for t, event in enumerate(current_phrase):
+        #     note_pred[0, t, self.note_index[event]] = 1.
+        #
+        # for t, event in enumerate(current_phrase):
+        #     length_pred[0, t, self.length_index[event]] = 1.
+        #
+        # note_pred = self.model.predict(note_pred, verbose=0)[0]
+        #
+        # note_index_from_sample = self.sample(note_pred, 1.0)
+        # note_prediction = self.index_note[note_index_from_sample]
+        #
+        #
+        #
+        # return note_prediction, length_prediction
 
     @staticmethod
     def prepare_notes():
         notes = []
         for i in range(0, 128):
             notes.append(i)
-        print(notes)
         return notes
+
+    @staticmethod
+    def prepare_lengths():
+        lengths = []
+        first_field = np.arange(0.0, 1., 0.01)
+        for value in list(first_field):
+            lengths.append(round(value, 2))
+
+        second_field = np.arange(1.0, 5.1, 0.1)
+        for value in list(second_field):
+            lengths.append(round(value, 1))
+
+        return lengths
 
     def sample(self, preds, temperature=1.0):
         # helper function to sample an index from a probability array
@@ -146,6 +175,6 @@ class Generator:
                     # self.osc.freq = note
 
                 if self.nn:
-                    self.play_nn()
+                    self.make_prediction()
 
         self.store.past_prediction = self.store.values

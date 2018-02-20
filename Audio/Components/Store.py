@@ -17,7 +17,8 @@ class Store:
         self.start_time = time.time()
         self.past_notes_array = deque([0], maxlen=10)
         self.past_length = 0
-        self.ring_buffer = self.prepare_ring_buffer()
+        self.note_ring_buffer = self.prepare_ring_buffer()
+        self.length_ring_buffer = self.prepare_ring_buffer()
 
     @staticmethod
     def prepare_ring_buffer():
@@ -102,12 +103,15 @@ class Store:
             self.new_note = False
             self.past_prediction = self.values
         else:
+            length = self.rounded_length()
             self.past_prediction = {
                 "note": self.past_prediction['note'],
                 "volume": self.past_prediction['volume'],
-                "length": self.rounded_length()
+                "length": length
             }
-            self.ring_buffer.append(self.past_prediction['note'])
+
+            self.note_ring_buffer.append(self.most_common())
+            self.length_ring_buffer.append(length)
             self.start_time = time.time()
             self.new_note = True
 
