@@ -1,18 +1,10 @@
 import numpy as np
-import random
 import time
-import pandas
 
 from keras.callbacks import LambdaCallback
-
-from keras import optimizers
-from keras.layers import Activation, Input, LSTM, Dense, Dropout, BatchNormalization, GRU, Flatten, TimeDistributed
-from keras.models import Model
 from keras.utils import plot_model
-from keras.layers.merge import concatenate
 
 from pandas import read_csv
-from socketIO_client import SocketIO, LoggingNamespace
 from Audio.Components.MidiPlayer import MidiPlayer
 
 # from keras.utils.vis_utils import model_to_dot
@@ -21,6 +13,8 @@ from Audio.Components.MidiPlayer import MidiPlayer
 # import pydot
 # import graphviz
 
+from NN.models.windowed_model import create_model
+
 from Audio.Components.helpers.prepare_arrays import prepare_notes, prepare_lengths
 from Audio.Components.helpers.save_model import save_model
 from Audio.Components.helpers.predict import make_prediction
@@ -28,15 +22,20 @@ from Audio.Components.helpers.create_categorical_indicies import create_category
 from Audio.Components.helpers.generate_phrases import generate_phrases
 from Audio.Components.helpers.decode_predictions import decode_predictions
 from Audio.Components.helpers.play_generated_phrase import play_generated_phrase
+from Audio.Components.helpers.vectorize_phrases import vectorize_phrases
 import constants
 
 # Initialized the players
 # socket = SocketIO('localhost', 9876, LoggingNamespace)
 player = MidiPlayer()
 
-dropout = 0.2
+dropout = constants.dropout
 n_time_steps = constants.n_time_steps
-semi_redundancy_step = 3
+semi_redundancy_step = constants.semi_redundancy_step
+lstm_size = constants.lstm_size
+lr = constants.lr
+epochs = constants.epochs
+batch_size = constants.batch_size
 
 corpus = read_csv('Audio/data/output.csv', header=1)
 print('corpus length:', len(corpus))
@@ -62,62 +61,38 @@ lookup_indicies = {
 note_phrases, next_note = generate_phrases(notes_corpus, n_time_steps, semi_redundancy_step)
 length_phrases, next_length = generate_phrases(length_corpus, n_time_steps, semi_redundancy_step)
 
-# def vectorize_phrases(category):
-#
-#     return vectorized_x, vectorized_y
+note_x, note_y = vectorize_phrases(
+    phrases=note_phrases,
+    n_categories=len(categorized_variables['note_categories']),
+    n_time_steps=n_time_steps,
+    lookup_index=lookup_indicies['note_index'],
+    next_lookup_index=next_note
+    )
 
-note_x = np.zeros((len(note_phrases), n_time_steps, len(categorized_variables['note_categories'])), dtype=np.bool)
-note_y = np.zeros((len(note_phrases), len(categorized_variables['note_categories'])), dtype=np.bool)
+length_x, length_y = vectorize_phrases(
+    phrases=length_phrases,
+    n_categories=len(categorized_variables['length_categories']),
+    n_time_steps=n_time_steps,
+    lookup_index=lookup_indicies['lengths_index'],
+    next_lookup_index=next_length
+)
 
-length_x = np.zeros((len(length_phrases), n_time_steps, len(categorized_variables['length_categories'])), dtype=np.bool)
-length_y = np.zeros((len(length_phrases), len(categorized_variables['length_categories'])), dtype=np.bool)
-
-for i, phrase in enumerate(note_phrases):
-    for t, note in enumerate(phrase):
-        print(i, t, note)
-        note_x[i, t, note_index[note]] = 1
-    note_y[i, note_index[next_note[i]]] = 1
-
-for i, phrase in enumerate(length_phrases):
-    for t, length in enumerate(phrase):
-        print(i, t, length)
-        length_x[i, t, lengths_index[length]] = 1
-    length_y[i, lengths_index[next_length[i]]] = 1
-
-
-print(note_x.shape)
-print(length_x.shape)
-print(note_y.shape)
-print(length_y.shape)
+print(note_x.shape, 'note_x.shape')
+print(length_x.shape, 'length_x.shape')
+print(note_y.shape, 'note_y.shape')
+print(length_y.shape, 'length_y.shape')
 
 
-lstm_size = 64
-
-note_input = Input(name='note_input', shape=(n_time_steps, len(categorized_variables['note_categories'])))
-length_input = Input(name='length_input', shape=(n_time_steps, len(categorized_variables['length_categories'])))
-
-note_branch = LSTM(lstm_size, return_sequences=True)(note_input)
-note_share = LSTM(int(lstm_size/4), return_sequences=True)(note_branch)
-
-length_branch = LSTM(lstm_size, return_sequences=True)(length_input)
-length_share = LSTM(int(lstm_size/4), return_sequences=True)(length_branch)
-
-length_merge = concatenate([length_branch, note_share])
-note_merge = concatenate([note_branch, length_share])
-
-length_lstm = LSTM(lstm_size, return_sequences=False)(length_merge)
-note_lstm = LSTM(lstm_size, return_sequences=False)(note_merge)
-
-output_notes = Dense(len(categorized_variables['note_categories']), activation='softmax', name='note_output')(note_lstm)
-length_output = Dense(len(categorized_variables['length_categories']), activation='softmax', name='length_output')(length_lstm)
-
-optimizer = optimizers.RMSprop(lr=0.001)
-model = Model(inputs=[note_input, length_input], outputs=[output_notes, length_output])
-model.compile(loss=['categorical_crossentropy', 'categorical_crossentropy'], optimizer=optimizer)
-
+model = create_model(
+    categorized_variables=categorized_variables,
+    lstm_size=lstm_size,
+    lr=lr,
+    n_time_steps=n_time_steps,
+)
 
 # model.summary()
 # SVG(model_to_dot(model).create(prog='dot', format='svg'))
+
 
 def on_epoch_end(epoch, logs):
     # Function invoked at end of each epoch. Prints generated text.
@@ -171,8 +146,8 @@ def on_epoch_end(epoch, logs):
 play_callback = LambdaCallback(on_epoch_end=on_epoch_end)
 
 model.fit([note_x, length_x], [note_y, length_y],
-          batch_size=256,
-          epochs=10,
+          batch_size=batch_size,
+          epochs=epochs,
           callbacks=[play_callback]
           )
 
