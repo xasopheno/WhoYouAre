@@ -11,6 +11,9 @@ from Audio.Components.helpers.logger import logger
 from Audio.Components.helpers.load_model import load_model
 from Audio.Components.helpers.midi_to_hertz import midi_to_hertz
 from Audio.Components.helpers.prepare_arrays import prepare_notes, prepare_lengths
+from Audio.Components.helpers.create_categorical_indicies import create_category_indicies
+from Audio.Components.helpers.predict import make_prediction
+from Audio.Components.helpers.decode_predictions import decode_predictions
 from Audio.Components.helpers.sample import sample
 
 from Audio.Player.osc import SineOsc
@@ -43,12 +46,9 @@ class Generator:
             self.notes = prepare_notes()
             self.lengths = prepare_lengths()
 
-            self.note_index = dict((c, i) for i, c in enumerate(self.notes))
-            self.index_note = dict((i, c) for i, c in enumerate(self.notes))
+            self.note_index, self.index_note = create_category_indicies(category=self.notes)
 
-            self.length_index = dict((c, i) for i, c in enumerate(self.lengths))
-            self.index_length = dict((i, c) for i, c in enumerate(self.lengths))
-
+            self.length_index, self.index_length = create_category_indicies(category=self.lengths)
             self.model = load_model()
 
         self.p = pyaudio.PyAudio()
@@ -88,6 +88,30 @@ class Generator:
         return threshold
 
     def make_prediction(self):
+        # phrases = {'note_phrase': self.store.note_ring_buffer, 'length_phrase': self.store.length_ring_buffer}
+        # categorized_variables = {
+        #     'note_categories': self.notes,
+        #     'length_categories': self.lengths
+        # }
+        # lookup_indicies = {
+        #     'note_index': self.note_index,
+        #     'index_note': self.index_note,
+        #     'lengths_index': self.length_index,
+        #     'index_lengths': self.index_length,
+        # }
+        # encoded_prediction = make_prediction(
+        #     model=self.model,
+        #     phrases=phrases,
+        #     categorized_variables=categorized_variables,
+        #     lookup_indicies=lookup_indicies,
+        #     n_time_steps=self.n_time_steps
+        # )
+        #
+        # predictions = decode_predictions(
+        #     encoded_prediction=encoded_prediction,
+        #     lookup_indicies=lookup_indicies,
+        #     diversity=1
+        # )
         note_pred = np.zeros((1, self.n_time_steps, len(self.notes)))
         length_pred = np.zeros((1, self.n_time_steps, len(self.lengths)))
         #

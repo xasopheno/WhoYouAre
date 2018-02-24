@@ -23,10 +23,9 @@ from Audio.Components.helpers.generate_phrases import generate_phrases
 from Audio.Components.helpers.decode_predictions import decode_predictions
 from Audio.Components.helpers.play_generated_phrase import play_generated_phrase
 from Audio.Components.helpers.vectorize_phrases import vectorize_phrases
+from Audio.Components.helpers.logger import logger
 import constants
 
-# Initialized the players
-# socket = SocketIO('localhost', 9876, LoggingNamespace)
 player = MidiPlayer()
 
 dropout = constants.dropout
@@ -36,10 +35,12 @@ lstm_size = constants.lstm_size
 lr = constants.lr
 epochs = constants.epochs
 batch_size = constants.batch_size
+n_to_generate = constants.n_to_generate
 
 corpus = read_csv('Audio/data/output.csv', header=1)
 print('corpus length:', len(corpus))
 
+logger('PREPROCESSING')
 notes_corpus = corpus.values[:, 0]
 length_corpus = corpus.values[:, 1]
 
@@ -83,6 +84,8 @@ print(note_y.shape, 'note_y.shape')
 print(length_y.shape, 'length_y.shape')
 
 
+logger('TRAINING')
+
 model = create_model(
     categorized_variables=categorized_variables,
     lstm_size=lstm_size,
@@ -90,7 +93,7 @@ model = create_model(
     n_time_steps=n_time_steps,
 )
 
-# model.summary()
+model.summary()
 # SVG(model_to_dot(model).create(prog='dot', format='svg'))
 
 
@@ -110,7 +113,6 @@ def on_epoch_end(epoch, logs):
             generated_notes.extend(current_note_phrase)
             generated_lengths.extend(current_length_phrase)
 
-            n_to_generate = 20
             start_time = time.time()
 
             phrases = {'note_phrase': current_note_phrase, 'length_phrase': current_length_phrase}
@@ -148,7 +150,7 @@ play_callback = LambdaCallback(on_epoch_end=on_epoch_end)
 model.fit([note_x, length_x], [note_y, length_y],
           batch_size=batch_size,
           epochs=epochs,
-          callbacks=[play_callback]
+          # callbacks=[play_callback]
           )
 
 save_model(model, 'model')
