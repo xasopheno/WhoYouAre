@@ -88,49 +88,33 @@ class Generator:
         return threshold
 
     def make_prediction(self):
-        # phrases = {'note_phrase': self.store.note_ring_buffer, 'length_phrase': self.store.length_ring_buffer}
-        # categorized_variables = {
-        #     'note_categories': self.notes,
-        #     'length_categories': self.lengths
-        # }
-        # lookup_indicies = {
-        #     'note_index': self.note_index,
-        #     'index_note': self.index_note,
-        #     'lengths_index': self.length_index,
-        #     'index_lengths': self.index_length,
-        # }
-        # encoded_prediction = make_prediction(
-        #     model=self.model,
-        #     phrases=phrases,
-        #     categorized_variables=categorized_variables,
-        #     lookup_indicies=lookup_indicies,
-        #     n_time_steps=self.n_time_steps
-        # )
-        #
-        # predictions = decode_predictions(
-        #     encoded_prediction=encoded_prediction,
-        #     lookup_indicies=lookup_indicies,
-        #     diversity=1
-        # )
-        note_pred = np.zeros((1, self.n_time_steps, len(self.notes)))
-        length_pred = np.zeros((1, self.n_time_steps, len(self.lengths)))
-        #
-        for t, event in enumerate(self.store.note_ring_buffer):
-            note_pred[0, t, self.note_index[event]] = 1.
+        phrases = {'note_phrase': self.store.note_ring_buffer, 'length_phrase': self.store.length_ring_buffer}
+        categorized_variables = {
+            'note_categories': self.notes,
+            'length_categories': self.lengths
+        }
+        lookup_indicies = {
+            'note_index': self.note_index,
+            'index_note': self.index_note,
+            'lengths_index': self.length_index,
+            'index_lengths': self.index_length,
+        }
+        encoded_prediction = make_prediction(
+            model=self.model,
+            phrases=phrases,
+            categorized_variables=categorized_variables,
+            lookup_indicies=lookup_indicies,
+            n_time_steps=self.n_time_steps
+        )
 
-        for t, event in enumerate(self.store.length_ring_buffer):
-            length_pred[0, t, self.length_index[event]] = 1.
+        predictions = decode_predictions(
+            encoded_prediction=encoded_prediction,
+            lookup_indicies=lookup_indicies,
+            diversity=1
+        )
 
-        prediction = self.model.predict([note_pred, length_pred], verbose=0)
-
-        note_pred = prediction[0][0]
-        length_pred = prediction[1][0]
-
-        note_index_from_sample = sample(note_pred, 1.0)
-        note_prediction = self.index_note[note_index_from_sample]
-
-        length_index_from_sample = sample(length_pred, 1.0)
-        length_prediction = self.index_length[length_index_from_sample]
+        note_prediction = predictions['note_prediction']
+        length_prediction = predictions['length_prediction']
 
         return note_prediction, length_prediction
 
