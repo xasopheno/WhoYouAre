@@ -15,6 +15,8 @@ from Audio.Components.helpers.create_categorical_indicies import create_category
 from Audio.Components.helpers.predict import make_prediction
 from Audio.Components.helpers.decode_predictions import decode_predictions
 from Audio.Components.helpers.sample import sample
+from Audio.Components.helpers.play_generated_phrase import play_generated_phrase
+import constants
 
 from Audio.Player.osc import SineOsc
 
@@ -42,7 +44,7 @@ class Generator:
 
         """Trained_Model"""
         if args.nn:
-            self.n_time_steps = 12
+            self.n_time_steps = constants.n_time_steps
             self.notes = prepare_notes()
             self.lengths = prepare_lengths()
 
@@ -54,8 +56,8 @@ class Generator:
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(format=pyaudio.paFloat32,
                                   channels=1,
-                                  rate=44100,
-                                  frames_per_buffer=2048,
+                                  rate=constants.sample_rate,
+                                  frames_per_buffer=constants.chunk_size,
                                   input=True,
                                   output=False,
                                   stream_callback=self.detector.callback)
@@ -88,6 +90,11 @@ class Generator:
         return threshold
 
     def make_prediction(self):
+        generated_notes = []
+        generated_lengths = []
+        current_note_phrase = list(self.store.note_ring_buffer)
+        current_length_phrase = list(self.store.length_ring_buffer)
+
         phrases = {'note_phrase': self.store.note_ring_buffer, 'length_phrase': self.store.length_ring_buffer}
         categorized_variables = {
             'note_categories': self.notes,
@@ -99,24 +106,27 @@ class Generator:
             'lengths_index': self.length_index,
             'index_lengths': self.index_length,
         }
-        encoded_prediction = make_prediction(
-            model=self.model,
-            phrases=phrases,
-            categorized_variables=categorized_variables,
-            lookup_indicies=lookup_indicies,
-            n_time_steps=self.n_time_steps
-        )
+        for step in range(4):
+            encoded_prediction = make_prediction(
+                model=self.model,
+                phrases=phrases,
+                categorized_variables=categorized_variables,
+                lookup_indicies=lookup_indicies,
+                n_time_steps=self.n_time_steps
+            )
 
-        predictions = decode_predictions(
-            encoded_prediction=encoded_prediction,
-            lookup_indicies=lookup_indicies,
-            diversity=1
-        )
+            predictions = decode_predictions(
+                encoded_prediction=encoded_prediction,
+                lookup_indicies=lookup_indicies,
+                diversity=1
+            )
 
-        note_prediction = predictions['note_prediction']
-        length_prediction = predictions['length_prediction']
+            generated_notes.append(predictions['note_prediction'])
+            generated_lengths.append(predictions['length_prediction'])
 
-        return note_prediction, length_prediction
+            phrases['note_phrase'] = np.append(phrases['note_phrase'][1:], predictions['note_prediction'])
+            phrases['length_phrase'] = np.append(phrases['length_phrase'][1:], predictions['length_prediction'])
+        return generated_notes, generated_lengths
 
     def play(self):
         note = self.store.note
@@ -143,11 +153,10 @@ class Generator:
                     # self.osc.freq = note
 
                 if self.nn:
-                    predicted_note, predicted_length = self.make_prediction()
-                    print(predicted_note, predicted_length)
-                    velocity = 100
-                    if predicted_note > 70:
-                        predicted_note = 0
-                    self.player.play(predicted_note, predicted_length, velocity)
+                    generated_notes, generated_lengths = self.make_prediction()
+                    play_generated_phrase(
+                        generated_notes=generated_notes,
+                        generated_lengths=generated_lengths,
+                        player=self.player)
 
         self.store.past_prediction = self.store.values

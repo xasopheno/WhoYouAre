@@ -150,7 +150,7 @@ play_callback = LambdaCallback(on_epoch_end=on_epoch_end)
 model.fit([note_x, length_x], [note_y, length_y],
           batch_size=batch_size,
           epochs=epochs,
-          # callbacks=[play_callback]
+          callbacks=[play_callback]
           )
 
 save_model(model, 'model')
