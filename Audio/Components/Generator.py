@@ -50,9 +50,21 @@ class Generator:
             self.notes = prepare_notes()
             self.lengths = prepare_lengths()
 
-            self.note_index, self.index_note = create_category_indicies(category=self.notes)
+            self.categorized_variables = {
+                'note_categories': self.notes,
+                'length_categories': self.lengths
+            }
 
+            self.note_index, self.index_note = create_category_indicies(category=self.notes)
             self.length_index, self.index_length = create_category_indicies(category=self.lengths)
+
+            self.lookup_indicies = {
+                'note_index': self.note_index,
+                'index_note': self.index_note,
+                'lengths_index': self.length_index,
+                'index_lengths': self.index_length,
+            }
+
             self.model = load_model()
 
         self.p = pyaudio.PyAudio()
@@ -94,32 +106,21 @@ class Generator:
     def make_prediction(self):
         generated_notes = []
         generated_lengths = []
-        current_note_phrase = list(self.store.note_ring_buffer)
-        current_length_phrase = list(self.store.length_ring_buffer)
 
-        phrases = {'note_phrase': self.store.note_ring_buffer, 'length_phrase': self.store.length_ring_buffer}
-        categorized_variables = {
-            'note_categories': self.notes,
-            'length_categories': self.lengths
-        }
-        lookup_indicies = {
-            'note_index': self.note_index,
-            'index_note': self.index_note,
-            'lengths_index': self.length_index,
-            'index_lengths': self.index_length,
-        }
+        phrases = {'note_phrase': list(self.store.note_ring_buffer), 'length_phrase': list(self.store.length_ring_buffer)}
+
         for step in range(4):
             encoded_prediction = make_prediction(
                 model=self.model,
                 phrases=phrases,
-                categorized_variables=categorized_variables,
-                lookup_indicies=lookup_indicies,
+                categorized_variables=self.categorized_variables,
+                lookup_indicies=self.lookup_indicies,
                 n_time_steps=self.n_time_steps
             )
 
             predictions = decode_predictions(
                 encoded_prediction=encoded_prediction,
-                lookup_indicies=lookup_indicies,
+                lookup_indicies=self.lookup_indicies,
                 diversity=1
             )
 
