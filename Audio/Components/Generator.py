@@ -1,6 +1,8 @@
 import numpy as np
 import pyaudio
 import time
+import threading
+
 from Audio.Components.MidiPlayer import MidiPlayer
 from Audio.Components.StreamToFrequency import StreamToFrequency
 from Audio.Components.Store import Store
@@ -153,10 +155,13 @@ class Generator:
                     # self.osc.freq = note
 
                 if self.nn:
+                    # if lock.acquire(False):
+                    #     start_thread that generates and then plays notes
                     generated_notes, generated_lengths = self.make_prediction()
                     play_generated_phrase(
                         generated_notes=generated_notes,
                         generated_lengths=generated_lengths,
                         player=self.player)
+                    # lock.release()
 
         self.store.past_prediction = self.store.values

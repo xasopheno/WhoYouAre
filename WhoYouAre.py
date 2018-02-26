@@ -117,6 +117,7 @@ def on_epoch_end(epoch, logs):
 
             phrases = {'note_phrase': current_note_phrase, 'length_phrase': current_length_phrase}
 
+            # model, phrases,categorized_variables, lookup_indicies, n_time_steps, diversity
             for step in range(n_to_generate):
                 encoded_prediction = make_prediction(
                     model=model,
