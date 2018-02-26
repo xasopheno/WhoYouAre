@@ -47,6 +47,7 @@ class Generator:
 
         """Trained_Model"""
         if args.nn:
+            self.prediction_lock = threading.Lock()
             self.n_time_steps = constants.n_time_steps
             self.notes = prepare_notes()
             self.lengths = prepare_lengths()
@@ -104,12 +105,16 @@ class Generator:
             threshold = self.store.new_note
         return threshold
 
-    def make_prediction(self):
+    def generate_prediction_phrases(self, model, phrases, categorized_variables, lookup_indicies, n_time_steps, diversity, n_to_generate):
+        pass
+
+    def generate_predictions(self):
+        n_to_generate = random.choice([2, 3, 4])
+
         generated_notes = []
         generated_lengths = []
-
         phrases = {'note_phrase': list(self.store.note_ring_buffer), 'length_phrase': list(self.store.length_ring_buffer)}
-        n_to_generate = random.choice([2, 3, 4])
+
         for step in range(n_to_generate):
             encoded_prediction = make_prediction(
                 model=self.model,
@@ -132,10 +137,18 @@ class Generator:
             phrases['length_phrase'] = np.append(phrases['length_phrase'][1:], predictions['length_prediction'])
         return generated_notes, generated_lengths
 
+    def generate_and_play_prediction(self):
+        generated_notes, generated_lengths = self.generate_predictions()
+        play_generated_phrase(
+            generated_notes=generated_notes,
+            generated_lengths=generated_lengths,
+            player=self.player)
+
     def play(self):
         note = self.store.note
         volume = self.store.volume
         length = self.store.length
+
 
         if self.beyond_threshold():
             if self.store.past_prediction['length'] > 0:
@@ -157,13 +170,13 @@ class Generator:
                     # self.osc.freq = note
 
                 if self.nn:
-                    # if lock.acquire(False):
-                    #     start_thread that generates and then plays notes
-                    generated_notes, generated_lengths = self.make_prediction()
-                    play_generated_phrase(
-                        generated_notes=generated_notes,
-                        generated_lengths=generated_lengths,
-                        player=self.player)
-                    # lock.release()
+                    # if self.prediction_lock.acquire(True):
+                    print('generating_phrase')
+                        # t = threading.Thread(target=self.generate_and_play_prediction)
+                        # t.start()
+                    print('_____________________', self.store.note_ring_buffer)
+                    self.generate_and_play_prediction()
+                        # self.prediction_lock.release()
+                    print('waiting')
 
         self.store.past_prediction = self.store.values

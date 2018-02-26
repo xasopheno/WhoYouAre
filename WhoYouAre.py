@@ -106,18 +106,17 @@ def on_epoch_end(epoch, logs):
         for diversity in [1]:
             print('----- diversity:', diversity)
 
-            generated_notes = []
-            generated_lengths = []
             current_note_phrase = notes_corpus[start_index: start_index + n_time_steps]
             current_length_phrase = length_corpus[start_index: start_index + n_time_steps]
-            generated_notes.extend(current_note_phrase)
-            generated_lengths.extend(current_length_phrase)
-
-            start_time = time.time()
 
             phrases = {'note_phrase': current_note_phrase, 'length_phrase': current_length_phrase}
 
-            # model, phrases,categorized_variables, lookup_indicies, n_time_steps, diversity
+            generated_notes = []
+            generated_lengths = []
+            generated_notes.extend(current_note_phrase)
+            generated_lengths.extend(current_length_phrase)
+
+            # model, phrases,categorized_variables, lookup_indicies, n_time_steps, diversity, n_to_generate
             for step in range(n_to_generate):
                 encoded_prediction = make_prediction(
                     model=model,
@@ -138,8 +137,6 @@ def on_epoch_end(epoch, logs):
 
                 phrases['note_phrase'] = np.append(phrases['note_phrase'][1:], predictions['note_prediction'])
                 phrases['length_phrase'] = np.append(phrases['length_phrase'][1:], predictions['length_prediction'])
-
-            end_time = time.time()
 
             play_generated_phrase(
                 generated_notes=generated_notes,
