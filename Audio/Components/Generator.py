@@ -2,6 +2,7 @@ import numpy as np
 import pyaudio
 import time
 import threading
+import random
 
 from Audio.Components.MidiPlayer import MidiPlayer
 from Audio.Components.StreamToFrequency import StreamToFrequency
@@ -108,8 +109,8 @@ class Generator:
         generated_lengths = []
 
         phrases = {'note_phrase': list(self.store.note_ring_buffer), 'length_phrase': list(self.store.length_ring_buffer)}
-
-        for step in range(4):
+        n_to_generate = random.choice([2, 3, 4])
+        for step in range(n_to_generate):
             encoded_prediction = make_prediction(
                 model=self.model,
                 phrases=phrases,

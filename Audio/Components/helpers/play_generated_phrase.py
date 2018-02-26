@@ -1,5 +1,6 @@
 def play_generated_phrase(generated_notes, generated_lengths, player):
     for event in range(len(generated_notes)):
+        print(event)
         note = generated_notes[event]
         length = generated_lengths[event]
         print(note, '|', length)
