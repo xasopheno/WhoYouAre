@@ -115,7 +115,8 @@ class Generator:
         pass
 
     def generate_predictions(self):
-        n_to_generate = 4
+        n_to_generate = random.choice([2,3,4,5,6,7,8])
+        print('n_to_generate', n_to_generate)
 
         generated_notes = []
         generated_lengths = []
