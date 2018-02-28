@@ -1,8 +1,10 @@
 import numpy as np
 import pyaudio
 import time
+from multiprocessing import Process
 import threading
 import random
+import tensorflow as tf
 
 from Audio.Components.MidiPlayer import MidiPlayer
 from Audio.Components.StreamToFrequency import StreamToFrequency
@@ -17,7 +19,6 @@ from Audio.Components.helpers.prepare_arrays import prepare_notes, prepare_lengt
 from Audio.Components.helpers.create_categorical_indicies import create_category_indicies
 from Audio.Components.helpers.predict import make_prediction
 from Audio.Components.helpers.decode_predictions import decode_predictions
-from Audio.Components.helpers.sample import sample
 from Audio.Components.helpers.play_generated_phrase import play_generated_phrase
 import constants
 
@@ -68,6 +69,7 @@ class Generator:
             }
 
             self.model = load_model()
+            self.graph = tf.get_default_graph()
 
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(format=pyaudio.paFloat32,
@@ -77,6 +79,10 @@ class Generator:
                                   input=True,
                                   output=False,
                                   stream_callback=self.detector.callback)
+
+        thread = threading.Thread(target=self.generate_and_play_prediction)
+        thread.daemon = True
+        thread.start()
 
     def setup_websocket_player(self):
         wsp = WebSocketPlayer()
@@ -109,7 +115,7 @@ class Generator:
         pass
 
     def generate_predictions(self):
-        n_to_generate = random.choice([2, 3, 4])
+        n_to_generate = 4
 
         generated_notes = []
         generated_lengths = []
@@ -135,20 +141,22 @@ class Generator:
 
             phrases['note_phrase'] = np.append(phrases['note_phrase'][1:], predictions['note_prediction'])
             phrases['length_phrase'] = np.append(phrases['length_phrase'][1:], predictions['length_prediction'])
+
         return generated_notes, generated_lengths
 
     def generate_and_play_prediction(self):
-        generated_notes, generated_lengths = self.generate_predictions()
-        play_generated_phrase(
-            generated_notes=generated_notes,
-            generated_lengths=generated_lengths,
-            player=self.player)
+        with self.graph.as_default():
+            while True:
+                generated_notes, generated_lengths = self.generate_predictions()
+                play_generated_phrase(
+                    generated_notes=generated_notes,
+                    generated_lengths=generated_lengths,
+                    player=self.player)
 
     def play(self):
         note = self.store.note
         volume = self.store.volume
         length = self.store.length
-
 
         if self.beyond_threshold():
             if self.store.past_prediction['length'] > 0:
@@ -170,13 +178,6 @@ class Generator:
                     # self.osc.freq = note
 
                 if self.nn:
-                    # if self.prediction_lock.acquire(True):
-                    print('generating_phrase')
-                        # t = threading.Thread(target=self.generate_and_play_prediction)
-                        # t.start()
                     print('_____________________', self.store.note_ring_buffer)
-                    self.generate_and_play_prediction()
-                        # self.prediction_lock.release()
-                    print('waiting')
 
         self.store.past_prediction = self.store.values

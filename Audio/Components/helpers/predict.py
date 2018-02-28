@@ -22,4 +22,6 @@ def make_prediction(model, phrases, categorized_variables, lookup_indicies, n_ti
                                      n_categories=len(categorized_variables['length_categories']),
                                      n_time_steps=n_time_steps)
 
-    return model.predict([encoded_note_prediction, encoded_length_prediction], verbose=0)
+    prediction = model.predict([encoded_note_prediction, encoded_length_prediction], verbose=0)
+
+    return prediction
