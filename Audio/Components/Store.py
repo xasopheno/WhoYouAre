@@ -4,7 +4,8 @@ import math
 import time
 from collections import deque
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
-
+from Audio.Components.helpers.prepare_ring_buffer import prepare_ring_buffer
+import constants
 
 class Store:
     def __init__(self):
@@ -17,15 +18,9 @@ class Store:
         self.start_time = time.time()
         self.past_notes_array = deque([0], maxlen=10)
         self.past_length = 0
-        self.note_ring_buffer = self.prepare_ring_buffer()
-        self.length_ring_buffer = self.prepare_ring_buffer()
+        self.note_ring_buffer = prepare_ring_buffer(size=constants.n_time_steps)
+        self.length_ring_buffer = prepare_ring_buffer(size=constants.n_time_steps)
 
-    @staticmethod
-    def prepare_ring_buffer():
-        rb = deque(maxlen=12)
-        for i in range(5):
-            rb.appendleft(0)
-        return rb
 
     @staticmethod
     def base_values():
@@ -109,7 +104,7 @@ class Store:
                 "length": length
             }
 
-            self.note_ring_buffer.append(self.most_common())
+            self.note_ring_buffer.append(self.past_prediction['note'])
             self.length_ring_buffer.append(length)
             self.start_time = time.time()
             self.new_note = True

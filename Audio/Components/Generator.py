@@ -1,6 +1,11 @@
 import numpy as np
 import pyaudio
 import time
+from multiprocessing import Process
+import threading
+import random
+import tensorflow as tf
+
 from Audio.Components.MidiPlayer import MidiPlayer
 from Audio.Components.StreamToFrequency import StreamToFrequency
 from Audio.Components.Store import Store
@@ -11,7 +16,11 @@ from Audio.Components.helpers.logger import logger
 from Audio.Components.helpers.load_model import load_model
 from Audio.Components.helpers.midi_to_hertz import midi_to_hertz
 from Audio.Components.helpers.prepare_arrays import prepare_notes, prepare_lengths
-from Audio.Components.helpers.sample import sample
+from Audio.Components.helpers.create_categorical_indicies import create_category_indicies
+from Audio.Components.helpers.predict import make_prediction
+from Audio.Components.helpers.decode_predictions import decode_predictions
+from Audio.Components.helpers.play_generated_phrase import play_generated_phrase
+import constants
 
 from Audio.Player.osc import SineOsc
 
@@ -39,26 +48,41 @@ class Generator:
 
         """Trained_Model"""
         if args.nn:
-            self.n_time_steps = 12
+            self.prediction_lock = threading.Lock()
+            self.n_time_steps = constants.n_time_steps
             self.notes = prepare_notes()
             self.lengths = prepare_lengths()
 
-            self.note_index = dict((c, i) for i, c in enumerate(self.notes))
-            self.index_note = dict((i, c) for i, c in enumerate(self.notes))
+            self.categorized_variables = {
+                'note_categories': self.notes,
+                'length_categories': self.lengths
+            }
 
-            self.length_index = dict((c, i) for i, c in enumerate(self.lengths))
-            self.index_length = dict((i, c) for i, c in enumerate(self.lengths))
+            self.note_index, self.index_note = create_category_indicies(category=self.notes)
+            self.length_index, self.index_length = create_category_indicies(category=self.lengths)
+
+            self.lookup_indicies = {
+                'note_index': self.note_index,
+                'index_note': self.index_note,
+                'lengths_index': self.length_index,
+                'index_lengths': self.index_length,
+            }
 
             self.model = load_model()
+            self.graph = tf.get_default_graph()
 
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(format=pyaudio.paFloat32,
                                   channels=1,
-                                  rate=44100,
-                                  frames_per_buffer=2048,
+                                  rate=constants.sample_rate,
+                                  frames_per_buffer=constants.chunk_size,
                                   input=True,
                                   output=False,
                                   stream_callback=self.detector.callback)
+
+        thread = threading.Thread(target=self.generate_and_play_prediction)
+        thread.daemon = True
+        thread.start()
 
     def setup_websocket_player(self):
         wsp = WebSocketPlayer()
@@ -87,28 +111,48 @@ class Generator:
             threshold = self.store.new_note
         return threshold
 
-    def make_prediction(self):
-        note_pred = np.zeros((1, self.n_time_steps, len(self.notes)))
-        length_pred = np.zeros((1, self.n_time_steps, len(self.lengths)))
-        #
-        for t, event in enumerate(self.store.note_ring_buffer):
-            note_pred[0, t, self.note_index[event]] = 1.
+    def generate_prediction_phrases(self, model, phrases, categorized_variables, lookup_indicies, n_time_steps, diversity, n_to_generate):
+        pass
 
-        for t, event in enumerate(self.store.length_ring_buffer):
-            length_pred[0, t, self.length_index[event]] = 1.
+    def generate_predictions(self):
+        n_to_generate = random.choice([2,3,4,5,6,7,8])
+        print('n_to_generate', n_to_generate)
 
-        prediction = self.model.predict([note_pred, length_pred], verbose=0)
+        generated_notes = []
+        generated_lengths = []
+        phrases = {'note_phrase': list(self.store.note_ring_buffer), 'length_phrase': list(self.store.length_ring_buffer)}
 
-        note_pred = prediction[0][0]
-        length_pred = prediction[1][0]
+        for step in range(n_to_generate):
+            encoded_prediction = make_prediction(
+                model=self.model,
+                phrases=phrases,
+                categorized_variables=self.categorized_variables,
+                lookup_indicies=self.lookup_indicies,
+                n_time_steps=self.n_time_steps
+            )
 
-        note_index_from_sample = sample(note_pred, 1.0)
-        note_prediction = self.index_note[note_index_from_sample]
+            predictions = decode_predictions(
+                encoded_prediction=encoded_prediction,
+                lookup_indicies=self.lookup_indicies,
+                diversity=1
+            )
 
-        length_index_from_sample = sample(length_pred, 1.0)
-        length_prediction = self.index_length[length_index_from_sample]
+            generated_notes.append(predictions['note_prediction'])
+            generated_lengths.append(predictions['length_prediction'])
 
-        return note_prediction, length_prediction
+            phrases['note_phrase'] = np.append(phrases['note_phrase'][1:], predictions['note_prediction'])
+            phrases['length_phrase'] = np.append(phrases['length_phrase'][1:], predictions['length_prediction'])
+
+        return generated_notes, generated_lengths
+
+    def generate_and_play_prediction(self):
+        with self.graph.as_default():
+            while True:
+                generated_notes, generated_lengths = self.generate_predictions()
+                play_generated_phrase(
+                    generated_notes=generated_notes,
+                    generated_lengths=generated_lengths,
+                    player=self.player)
 
     def play(self):
         note = self.store.note
@@ -135,11 +179,6 @@ class Generator:
                     # self.osc.freq = note
 
                 if self.nn:
-                    predicted_note, predicted_length = self.make_prediction()
-                    print(predicted_note, predicted_length)
-                    velocity = 100
-                    if predicted_note > 70:
-                        predicted_note = 0
-                    self.player.play(predicted_note, predicted_length, velocity)
+                    print('_____________________', self.store.note_ring_buffer)
 
         self.store.past_prediction = self.store.values
