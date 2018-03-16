@@ -46,7 +46,7 @@ class MidiPlayer:
         del self.midi_out
 
     def play_csv(self):
-        with open('Audio/data/output.csv', 'r') as f:
+        with open('Audio/data/input.csv', 'r') as f:
             next(f)
             for line in f:
                 print(line)
