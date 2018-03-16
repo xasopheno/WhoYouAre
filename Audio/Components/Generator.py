@@ -1,7 +1,6 @@
 import numpy as np
 import pyaudio
 import time
-from multiprocessing import Process
 import threading
 import random
 import tensorflow as tf
@@ -17,7 +16,7 @@ from Audio.Components.helpers.load_model import load_model
 from Audio.Components.helpers.midi_to_hertz import midi_to_hertz
 from Audio.Components.helpers.prepare_arrays import prepare_notes, prepare_lengths
 from Audio.Components.helpers.create_categorical_indicies import create_category_indicies
-from Audio.Components.helpers.predict import make_prediction
+from Audio.Components.helpers.make_encoded_prediction import make_encoded_prediction
 from Audio.Components.helpers.decode_predictions import decode_predictions
 from Audio.Components.helpers.play_generated_phrase import play_generated_phrase
 import constants
@@ -114,8 +113,8 @@ class Generator:
     def generate_prediction_phrases(self, model, phrases, categorized_variables, lookup_indicies, n_time_steps, diversity, n_to_generate):
         pass
 
-    def generate_predictions(self):
-        n_to_generate = random.choice([2,3,4,5,6,7,8])
+    def generate_predictions(self, temperature=1.0):
+        n_to_generate = random.choice([8])
         print('n_to_generate', n_to_generate)
 
         generated_notes = []
@@ -123,7 +122,7 @@ class Generator:
         phrases = {'note_phrase': list(self.store.note_ring_buffer), 'length_phrase': list(self.store.length_ring_buffer)}
 
         for step in range(n_to_generate):
-            encoded_prediction = make_prediction(
+            encoded_prediction = make_encoded_prediction(
                 model=self.model,
                 phrases=phrases,
                 categorized_variables=self.categorized_variables,
@@ -132,9 +131,9 @@ class Generator:
             )
 
             predictions = decode_predictions(
+                temperature=temperature,
                 encoded_prediction=encoded_prediction,
                 lookup_indicies=self.lookup_indicies,
-                diversity=1
             )
 
             generated_notes.append(predictions['note_prediction'])
@@ -148,7 +147,7 @@ class Generator:
     def generate_and_play_prediction(self):
         with self.graph.as_default():
             while True:
-                generated_notes, generated_lengths = self.generate_predictions()
+                generated_notes, generated_lengths = self.generate_predictions(temperature=0.5)
                 play_generated_phrase(
                     generated_notes=generated_notes,
                     generated_lengths=generated_lengths,
@@ -180,5 +179,6 @@ class Generator:
 
                 if self.nn:
                     print('_____________________', self.store.note_ring_buffer)
+                    # print('_____________________', self.store.length_ring_buffer)
 
         self.store.past_prediction = self.store.values

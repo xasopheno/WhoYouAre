@@ -17,7 +17,7 @@ from NN.models.windowed_model import create_model
 
 from Audio.Components.helpers.prepare_arrays import prepare_notes, prepare_lengths
 from Audio.Components.helpers.save_model import save_model
-from Audio.Components.helpers.predict import make_prediction
+from Audio.Components.helpers.make_encoded_prediction import make_encoded_prediction
 from Audio.Components.helpers.create_categorical_indicies import create_category_indicies
 from Audio.Components.helpers.generate_phrases import generate_phrases
 from Audio.Components.helpers.decode_predictions import decode_predictions
@@ -98,8 +98,8 @@ model.summary()
 
 
 def on_epoch_end(epoch, logs):
-    # Function invoked at end of each epoch. Prints generated text.
-    if epoch % 1 == 0 and epoch > 3:
+    if epoch % 50 == 0 and epoch > 60:
+    # if epoch < -2:
         print('----- Generating melody after Epoch: %d' % epoch)
 
         start_index = 0
@@ -118,7 +118,7 @@ def on_epoch_end(epoch, logs):
 
             # model, phrases,categorized_variables, lookup_indicies, n_time_steps, diversity, n_to_generate
             for step in range(n_to_generate):
-                encoded_prediction = make_prediction(
+                encoded_prediction = make_encoded_prediction(
                     model=model,
                     phrases=phrases,
                     categorized_variables=categorized_variables,
