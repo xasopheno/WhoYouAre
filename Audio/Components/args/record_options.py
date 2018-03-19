@@ -4,10 +4,10 @@ import argparse
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
 
 
-def microphone_to_csv_options():
+def record_options():
     a = argparse.ArgumentParser()
 
-    a.add_argument("--volume",
+    a.add_argument("--display_volume",
                    help = "Specify if input volume should be displayed.",
                    dest = "display_volume",
                    required=False,
@@ -15,7 +15,7 @@ def microphone_to_csv_options():
                    type=bool,
                    nargs=1)
 
-    a.add_argument("--values",
+    a.add_argument("--display_predictions",
                    help="Specify if prediction values should be displayed.",
                    dest = "display_prediction",
                    required=False,
@@ -23,7 +23,7 @@ def microphone_to_csv_options():
                    type=bool,
                    nargs=1)
 
-    a.add_argument("--csv",
+    a.add_argument("--write_csv",
                    help="Specify if a csv should be written.",
                    dest="write_csv",
                    required=False,
@@ -40,7 +40,7 @@ def microphone_to_csv_options():
                    nargs=1)
 
     a.add_argument("--play_websocket",
-                   help="Specify if frequencies should be sent to websocket.",
+                   help="Specify if frequencies should be sent to a local websocket.",
                    dest="play_websocket",
                    required=False,
                    default=False,
@@ -48,14 +48,14 @@ def microphone_to_csv_options():
                    nargs=1)
 
     a.add_argument("--filtered",
-                   help="filtered to show only notes).",
+                   help="filter out redundant notes).",
                    dest="filtered",
                    required=False,
                    default=False,
                    type=bool,
                    nargs=1)
 
-    a.add_argument("--wave",
+    a.add_argument("--py_osc",
                    help="Specify if frequencies should be sent to the python oscillator.",
                    dest="wave",
                    required=False,
