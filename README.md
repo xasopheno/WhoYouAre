@@ -3,6 +3,22 @@
 ## Setup 
 pip3 install requirements.txt
 
+## Use
+Generate a .csv file:
+
+`python3 Record.py --display_predictions=True --filtered=True --csv=True`
+
+Copy .csv values from `Audio/data/output_new.csv` to `Audio/data/input.csv`.
+
+Train on the .csv file:
+
+Best to open `WhoYouAre.ipynb` with `jupyter notebook` and train from there,
+but network can also be trained with `python3 WhoYouAre.py`
+
+You can then improvise with the trained model with 
+
+`python3 Record.py --nn=True --display_predictions=True --filtered=True`
+
 
 ## Record.py
 python3 Record.py
@@ -11,6 +27,7 @@ Records microphone input as midi values
 
 #### Arguments
 default marked in (parentheses)
+* --nn=True | (False)
 * --show_prediction=True | (False) 
 * --show_volume=True | (False)
 * --write_csv=True | (False)
