@@ -47,6 +47,7 @@ class Generator:
 
         """Trained_Model"""
         if args.nn:
+            self.counter = 0
             self.prediction_lock = threading.Lock()
             self.n_time_steps = constants.n_time_steps
             self.notes = prepare_notes()
@@ -113,7 +114,7 @@ class Generator:
     def generate_prediction_phrases(self, model, phrases, categorized_variables, lookup_indicies, n_time_steps, diversity, n_to_generate):
         pass
 
-    def generate_predictions(self, temperature=1):
+    def generate_predictions(self, temperature=1.0):
         n_to_generate = random.choice([3, 4, 5, 6])
         print('n_to_generate', n_to_generate)
 
@@ -147,11 +148,13 @@ class Generator:
     def generate_and_play_prediction(self):
         with self.graph.as_default():
             while True:
-                generated_notes, generated_lengths = self.generate_predictions(temperature=0.5)
-                play_generated_phrase(
-                    generated_notes=generated_notes,
-                    generated_lengths=generated_lengths,
-                    player=self.player)
+                if self.counter > self.n_time_steps:
+                    generated_notes, generated_lengths = self.generate_predictions(temperature=0.5)
+                    print('Buffer Full, Playing')
+                    play_generated_phrase(
+                        generated_notes=generated_notes,
+                        generated_lengths=generated_lengths,
+                        player=self.player)
 
     def play(self):
         note = self.store.note
@@ -178,6 +181,7 @@ class Generator:
                     # self.osc.freq = note
 
                 if self.nn:
+                    self.counter += 1
                     print('_____________________', self.store.note_ring_buffer)
                     # print('_____________________', self.store.length_ring_buffer)
 
