@@ -113,8 +113,8 @@ class Generator:
     def generate_prediction_phrases(self, model, phrases, categorized_variables, lookup_indicies, n_time_steps, diversity, n_to_generate):
         pass
 
-    def generate_predictions(self, temperature=1.0):
-        n_to_generate = random.choice([8])
+    def generate_predictions(self, temperature=1):
+        n_to_generate = random.choice([3, 4, 5, 6])
         print('n_to_generate', n_to_generate)
 
         generated_notes = []
