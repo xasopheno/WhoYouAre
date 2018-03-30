@@ -115,7 +115,7 @@ class Generator:
         pass
 
     def generate_predictions(self, temperature=1.0):
-        n_to_generate = random.choice([3, 4, 5, 6])
+        n_to_generate = random.choice([3, 4, 5])
         print('n_to_generate', n_to_generate)
 
         generated_notes = []
@@ -148,8 +148,8 @@ class Generator:
     def generate_and_play_prediction(self):
         with self.graph.as_default():
             while True:
-                if self.counter > self.n_time_steps:
-                    generated_notes, generated_lengths = self.generate_predictions(temperature=0.5)
+                if self.counter > 0:
+                    generated_notes, generated_lengths = self.generate_predictions(temperature=.1)
                     print('Buffer Full, Playing')
                     play_generated_phrase(
                         generated_notes=generated_notes,
