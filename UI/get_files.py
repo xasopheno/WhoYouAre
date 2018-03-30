@@ -6,7 +6,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.par
 
 
 def get_data_dir():
-    data_dir = os.getcwd() + '/Audio/Data/language/motifs'
+    data_dir = os.getcwd() + '/Audio/Data/language'
     return data_dir
 
 
