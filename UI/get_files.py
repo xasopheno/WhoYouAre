@@ -23,11 +23,11 @@ def get_file_name(file):
     return file_name
 
 
-# def file_len(fname):
-#     with open(fname) as f:
-#         for i, l in enumerate(f):
-#             pass
-#     return i + 1
+def file_len(fname):
+    with open(fname) as f:
+        for i, l in enumerate(f):
+            pass
+    return i + 1
 
 def get_file_names():
     data_dir = get_data_dir()
@@ -50,7 +50,9 @@ def concat_csv_files(array_chosen_files):
                     for line in content:
                         final.write(line)
                     print(get_file_name(file))
-        # print('file is ' + len(final) + 'long')
+
+
+    print('File Length:', file_len(os.getcwd() + '/Audio/Data/concatenated_csv.csv'))
 
 
 concat_csv_files(get_file_names())
