@@ -1,4 +1,4 @@
-from keras.layers import Activation, Input, LSTM, Dense, Dropout, BatchNormalization, GRU, Flatten, TimeDistributed
+from keras.layers import Activation, Input, LSTM, Dense, Dropout, BatchNormalization, GRU, Flatten, TimeDistributed, Bidirectional
 from keras.models import Model
 from keras.layers.merge import concatenate
 from keras import optimizers
@@ -9,10 +9,10 @@ def create_model(categorized_variables, lstm_size, lr, n_time_steps):
     note_input = Input(name='note_input', shape=(n_time_steps, len(categorized_variables['note_categories'])))
     length_input = Input(name='length_input', shape=(n_time_steps, len(categorized_variables['length_categories'])))
 
-    note_branch = LSTM(lstm_size, return_sequences=True)(note_input)
+    note_branch = Bidirectional(LSTM(lstm_size, return_sequences=True))(note_input)
     note_share = LSTM(int(lstm_size/4), return_sequences=True)(note_branch)
 
-    length_branch = LSTM(lstm_size, return_sequences=True)(length_input)
+    length_branch = Bidirectional(LSTM(lstm_size, return_sequences=True))(length_input)
     length_share = LSTM(int(lstm_size/4), return_sequences=True)(length_branch)
 
     length_merge = concatenate([length_branch, note_share])
