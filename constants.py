@@ -1,5 +1,5 @@
-dropout = 0.2
-n_time_steps = 20
+dropout = 0.5
+n_time_steps = 30
 semi_redundancy_step = 1
 lstm_size = 256
 lr = 0.001
