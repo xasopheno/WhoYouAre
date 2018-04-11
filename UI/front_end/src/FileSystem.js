@@ -96,7 +96,7 @@ const styles = {
   },
   file_system__title_text: {
     fontSize: '1.5em',
-    margin: '0.25'
+    margin: '1.25em'
   },
   main: {
     width: '50%',
