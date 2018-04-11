@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import Cart from './Cart'
+import ListContainer from './ListContainer'
 import HTML5Backend from 'react-dnd-html5-backend';
 import { DragDropContext } from 'react-dnd';
 import ItemsDragLayer from './ItemsDragLayer';
 import axios from 'axios';
 
-class App extends Component {
+class FileSystem extends Component {
   constructor(props){
     super(props);
     this.state = { leftItems: [], rightItems: [] };
@@ -48,7 +48,7 @@ class App extends Component {
 
   async postFiles() {
     try {
-      let response = await this.apiRequest.post('files', JSON.stringify(this.state.rightItems));
+      let response = await this.apiRequest.post('files', JSON.stringify(this.state.leftItems));
       console.log(response)
     } catch (e) {
       console.log(e)
@@ -66,13 +66,21 @@ class App extends Component {
       <div style={styles.main}>
         <h2>Select files to use for training</h2>
         <h4>Use Shift or Cmd key to multi-select</h4>
-        <button onClick={() => this.createDataset()}>
+        <button style={styles.file_system__button} onClick={() => this.createDataset()}>
           <h2>Create Dataset</h2>
         </button>
+
         <ItemsDragLayer />
+
         <div style={styles.content}>
-          <Cart id='left' fields={this.state.leftItems} addItemsToCart={this.addItemsToCart} />
-          <Cart id='right' fields={this.state.rightItems} addItemsToCart={this.addItemsToCart} />
+          <div>
+            <p style={styles.file_system__title_text}>Selected</p>
+            <ListContainer id='left' fields={this.state.leftItems} addItemsToCart={this.addItemsToCart} />
+          </div>
+          <div style={styles.file_system__list_container}>
+          <p style={styles.file_system__title_text}>Unselected</p>
+            <ListContainer id='right' fields={this.state.rightItems} addItemsToCart={this.addItemsToCart} />
+          </div>
         </div>
       </div>
     );
@@ -80,6 +88,16 @@ class App extends Component {
 }
 
 const styles = {
+  file_system__list_container: {
+    marginLeft: '2em',
+  },
+  file_system__button: {
+    margin: '1em',
+  },
+  file_system__title_text: {
+    fontSize: '1.5em',
+    margin: '0.25'
+  },
   main: {
     width: '50%',
     margin: '0 auto',
@@ -95,4 +113,4 @@ const styles = {
 };
 
 const dragDropContext = DragDropContext;
-export default dragDropContext(HTML5Backend)(App);
+export default dragDropContext(HTML5Backend)(FileSystem);

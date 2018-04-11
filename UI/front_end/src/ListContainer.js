@@ -20,7 +20,7 @@ function collect(connect, monitor) {
   };
 }
 
-class Cart extends React.Component {
+class ListContainer extends React.Component {
   componentWillMount() {
     this.state = { selectedFields: [], lastSelectedIndex: -1 };
     this.handleItemSelection = this.handleItemSelection.bind(this);
@@ -79,7 +79,7 @@ class Cart extends React.Component {
   }
 }
 
-Cart.propTypes = {
+ListContainer.propTypes = {
   id: PropTypes.string,
   fields: PropTypes.array,
   data: PropTypes.object,
@@ -107,4 +107,4 @@ const styles = {
 
 const dropTarget = DropTarget;
 
-export default dropTarget('ITEM', nodeTarget, collect)(Cart);
+export default dropTarget('ITEM', nodeTarget, collect)(ListContainer);
