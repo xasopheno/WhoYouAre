@@ -115,7 +115,7 @@ class Generator:
         pass
 
     def generate_predictions(self, temperature=1.0):
-        n_to_generate = random.choice([3, 4, 5])
+        n_to_generate = random.choice([10,11,12,13,14,15])
         print('n_to_generate', n_to_generate)
 
         generated_notes = []

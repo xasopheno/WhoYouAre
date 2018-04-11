@@ -1,0 +1,32 @@
+Arguments: 
+  /Users/dannymeyer/.nvm/versions/node/v9.8.0/bin/node /Users/dannymeyer/.yarn/bin/yarn.js start
+
+PATH: 
+  /Users/dannymeyer/.yarn/bin:/Users/dannymeyer/.config/yarn/global/node_modules/.bin:/Users/dannymeyer/.nvm/versions/node/v9.8.0/bin:/Users/dannymeyer/anaconda3/bin:./.bundle/bin:./node_modules/.bin:.git/safe/../../bin:/Users/dannymeyer/.rbenv/shims:/Users/dannymeyer/torch/install/bin:/Library/Frameworks/Python.framework/Versions/3.6/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin:/Users/dannymeyer/Library/Android/sdk/platform-tools
+
+Yarn version: 
+  1.5.1
+
+Node version: 
+  9.8.0
+
+Platform: 
+  darwin x64
+
+npm manifest: 
+  No manifest
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
+
+Trace: 
+  Error: Couldn't find a package.json file in "/Users/dannymeyer/Documents/projects/WhoYouAre"
+      at new MessageError (/Users/dannymeyer/.yarn/lib/cli.js:186:110)
+      at /Users/dannymeyer/.yarn/lib/cli.js:40048:15
+      at Generator.next (<anonymous>)
+      at step (/Users/dannymeyer/.yarn/lib/cli.js:98:30)
+      at /Users/dannymeyer/.yarn/lib/cli.js:109:13
+      at <anonymous>

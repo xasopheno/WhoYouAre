@@ -1,6 +1,6 @@
 from pandas import read_csv
 
-from NN.models.windowed_model import create_model
+from NN.networks.windowed_model import create_model
 
 from Audio.Components.helpers.prepare_arrays import prepare_notes, prepare_lengths
 from Audio.Components.helpers.save_model import save_model
