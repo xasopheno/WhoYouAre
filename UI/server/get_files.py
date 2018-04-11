@@ -55,4 +55,4 @@ def concat_csv_files(array_chosen_files):
     print('File Length:', file_len(os.getcwd() + '/Audio/Data/concatenated_csv.csv'))
 
 
-concat_csv_files(get_file_names())
+# concat_csv_files(get_file_names())

@@ -8,6 +8,6 @@ def vectorize_phrases(phrases, n_categories, n_time_steps, lookup_index, next_lo
     for i, phrase in enumerate(phrases):
         for t, event in enumerate(phrase):
             vectorized_x[i, t, lookup_index[event]] = 1
-        vectorized_y[i, lookup_index[next_lookup_index[i]]] = 1
+            vectorized_y[i, lookup_index[next_lookup_index[i]]] = 1
 
     return vectorized_x, vectorized_y
