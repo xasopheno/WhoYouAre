@@ -41,6 +41,10 @@ class Store:
     @note.setter
     def note(self, note):
         note = int(note)
+        # if note != 0:
+        #     note -= 12
+        if note < 0:
+            note = 0
         self.past_notes_array.appendleft(note)
         self.__note = note
         self.is_new_note()
