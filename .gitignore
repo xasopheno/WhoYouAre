@@ -1,2 +1,7 @@
-venv
+node_modules/
+venv/
+*.pyc
+*.pyo
+.idea
+trained_models/
 

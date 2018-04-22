@@ -68,7 +68,7 @@ class Generator:
                 'index_lengths': self.index_length,
             }
 
-            self.model = load_model()
+            self.model = load_model(args.model[0])
             self.graph = tf.get_default_graph()
 
         self.p = pyaudio.PyAudio()
