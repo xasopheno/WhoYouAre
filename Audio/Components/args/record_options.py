@@ -69,4 +69,12 @@ def record_options():
                    default=False,
                    )
 
+    a.add_argument("-model",
+                   help="Improvise with neural network.",
+                   dest="model",
+                   type = str,
+                   required=False,
+                   nargs=1
+                  )
+
     return a.parse_args()
