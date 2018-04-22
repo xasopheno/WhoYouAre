@@ -1,5 +1,5 @@
 Arguments: 
-  /Users/dannymeyer/.nvm/versions/node/v9.8.0/bin/node /Users/dannymeyer/.yarn/bin/yarn.js start
+  /Users/dannymeyer/.nvm/versions/node/v9.8.0/bin/node /Users/dannymeyer/.yarn/bin/yarn.js start --prefix ./UI/front-end/
 
 PATH: 
   /Users/dannymeyer/.yarn/bin:/Users/dannymeyer/.config/yarn/global/node_modules/.bin:/Users/dannymeyer/.nvm/versions/node/v9.8.0/bin:/Users/dannymeyer/anaconda3/bin:./.bundle/bin:./node_modules/.bin:.git/safe/../../bin:/Users/dannymeyer/.rbenv/shims:/Users/dannymeyer/torch/install/bin:/Library/Frameworks/Python.framework/Versions/3.6/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin:/Users/dannymeyer/Library/Android/sdk/platform-tools
