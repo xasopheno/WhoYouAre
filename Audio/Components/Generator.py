@@ -38,7 +38,8 @@ class Generator:
 
         self.writer = File_Writer(write=self.write_csv)
         self.store = Store()
-        self.detector = StreamToFrequency(store=self.store, show_volume=self.display_volume)
+        self.detector = StreamToFrequency(store=self.store,
+                                          show_volume=self.display_volume)
 
         """Players"""
         self.osc = SineOsc()
@@ -58,8 +59,10 @@ class Generator:
                 'length_categories': self.lengths
             }
 
-            self.note_index, self.index_note = create_category_indicies(category=self.notes)
-            self.length_index, self.index_length = create_category_indicies(category=self.lengths)
+            self.note_index, self.index_note = \
+                create_category_indicies(category=self.notes)
+            self.length_index, self.index_length = \
+                create_category_indicies(category=self.lengths)
 
             self.lookup_indicies = {
                 'note_index': self.note_index,
@@ -111,7 +114,14 @@ class Generator:
             threshold = self.store.new_note
         return threshold
 
-    def generate_prediction_phrases(self, model, phrases, categorized_variables, lookup_indicies, n_time_steps, diversity, n_to_generate):
+    def generate_prediction_phrases(self,
+                                    model,
+                                    phrases,
+                                    categorized_variables,
+                                    lookup_indicies,
+                                    n_time_steps,
+                                    diversity,
+                                    n_to_generate):
         pass
 
     def generate_predictions(self, temperature=1.0):
@@ -120,7 +130,8 @@ class Generator:
 
         generated_notes = []
         generated_lengths = []
-        phrases = {'note_phrase': list(self.store.note_ring_buffer), 'length_phrase': list(self.store.length_ring_buffer)}
+        phrases = {'note_phrase': list(self.store.note_ring_buffer),
+                   'length_phrase': list(self.store.length_ring_buffer)}
 
         for step in range(n_to_generate):
             encoded_prediction = make_encoded_prediction(
@@ -140,8 +151,10 @@ class Generator:
             generated_notes.append(predictions['note_prediction'])
             generated_lengths.append(predictions['length_prediction'])
 
-            phrases['note_phrase'] = np.append(phrases['note_phrase'][1:], predictions['note_prediction'])
-            phrases['length_phrase'] = np.append(phrases['length_phrase'][1:], predictions['length_prediction'])
+            phrases['note_phrase'] = np.append(phrases['note_phrase'][1:],
+                                               predictions['note_prediction'])
+            phrases['length_phrase'] = np.append(phrases['length_phrase'][1:],
+                                                 predictions['length_prediction'])
 
         return generated_notes, generated_lengths
 
@@ -149,12 +162,14 @@ class Generator:
         with self.graph.as_default():
             while True:
                 if self.counter > 0:
-                    generated_notes, generated_lengths = self.generate_predictions(temperature=.1)
+                    generated_notes, generated_lengths = \
+                        self.generate_predictions(temperature=.1)
                     print('Buffer Full, Playing')
                     play_generated_phrase(
                         generated_notes=generated_notes,
                         generated_lengths=generated_lengths,
-                        player=self.player)
+                        player=self.player
+                    )
 
     def play(self):
         note = self.store.note
