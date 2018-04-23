@@ -76,5 +76,12 @@ def record_options():
                    required=False,
                    nargs=1
                   )
+    a.add_argument('-cli',
+                   help="set flag if using webclient",
+                   action="store_true",
+                   dest="client",
+                   required=False,
+                   default=False,
+                  )
 
     return a.parse_args()

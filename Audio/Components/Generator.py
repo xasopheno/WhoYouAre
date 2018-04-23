@@ -10,6 +10,7 @@ from Audio.Components.StreamToFrequency import StreamToFrequency
 from Audio.Components.Store import Store
 from Audio.Components.File_Writer import File_Writer
 from Audio.Components.WebSocketPlayer import WebSocketPlayer
+from Audio.Components.WebSocketAPI import WebSocketAPI
 
 from Audio.Components.helpers.logger import logger
 from Audio.Components.helpers.load_model import load_model
@@ -32,6 +33,7 @@ class Generator:
         self.show_prediction = args.display_prediction
         self.play_websocket = args.play_websocket
         self.display_volume = args.display_volume
+        self.client = args.client
         self.filtered = args.filtered
         self.nn = args.nn
         self.wave = args.wave
@@ -45,6 +47,11 @@ class Generator:
         self.osc = SineOsc()
         self.player = self.setup_midi_player()
         self.websocket_player = self.setup_websocket_player()
+
+        """Client"""
+        if args.client:
+            self.api = WebSocketAPI()
+            self.api.connect_to_socket()
 
         """Trained_Model"""
         if args.nn:
@@ -199,5 +206,8 @@ class Generator:
                     self.counter += 1
                     print('_____________________', self.store.note_ring_buffer)
                     # print('_____________________', self.store.length_ring_buffer)
+
+                if self.client:
+                    self.api.model_input(self.store.note_ring_buffer)
 
         self.store.past_prediction = self.store.values
