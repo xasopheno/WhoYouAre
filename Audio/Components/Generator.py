@@ -4,6 +4,7 @@ import time
 import threading
 import random
 import tensorflow as tf
+import json
 
 from Audio.Components.MidiPlayer import MidiPlayer
 from Audio.Components.StreamToFrequency import StreamToFrequency
@@ -171,11 +172,12 @@ class Generator:
                 if self.counter > 0:
                     generated_notes, generated_lengths = \
                         self.generate_predictions(temperature=.1)
-                    print('Buffer Full, Playing')
+
                     play_generated_phrase(
                         generated_notes=generated_notes,
                         generated_lengths=generated_lengths,
-                        player=self.player
+                        player=self.player,
+                        client=self.api,
                     )
 
     def play(self):
@@ -208,6 +210,8 @@ class Generator:
                     # print('_____________________', self.store.length_ring_buffer)
 
                 if self.client:
-                    self.api.model_input(self.store.note_ring_buffer)
+                    self.api.model_input(
+                        json.dumps(list(self.store.note_ring_buffer))
+                    )
 
         self.store.past_prediction = self.store.values

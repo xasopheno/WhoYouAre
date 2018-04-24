@@ -1,6 +1,7 @@
 import random
 
-def play_generated_phrase(generated_notes, generated_lengths, player):
+
+def play_generated_phrase(generated_notes, generated_lengths, player, client=False):
     for event in range(len(generated_notes)):
         note = generated_notes[event]
         length = generated_lengths[event]
@@ -9,4 +10,9 @@ def play_generated_phrase(generated_notes, generated_lengths, player):
 
         length *= random.choice([1])
         print(note, '|', length)
+        if client:
+            client.model_output({
+                "note": note,
+                "length": length,
+            })
         player.play(note, length, 100)
