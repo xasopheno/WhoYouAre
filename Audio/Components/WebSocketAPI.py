@@ -14,8 +14,6 @@ class WebSocketAPI:
 
         logger('Connected to http://127.0.0.1:5000')
 
-
-
     def model_input(self, data):
         self.socket.emit('model_input', {'data': data})
 
