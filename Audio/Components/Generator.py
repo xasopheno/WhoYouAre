@@ -210,8 +210,9 @@ class Generator:
                     # print('_____________________', self.store.length_ring_buffer)
 
                 if self.client:
-                    self.api.model_input(
-                        json.dumps(list(self.store.note_ring_buffer))
-                    )
+                    self.api.model_input({
+                        "note": list(self.store.note_ring_buffer),
+                        "length": list(self.store.length_ring_buffer),
+                    })
 
         self.store.past_prediction = self.store.values
