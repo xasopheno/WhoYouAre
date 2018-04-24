@@ -13,6 +13,7 @@ class App extends Component {
   render() {
     return (
       <Switch>
+        <Route exact path='/' component={FileServer}/>
         <Route exact path='/train' component={FileServer}/>
         <Route exact path='/play' component={FileServer}/>
       </Switch>
