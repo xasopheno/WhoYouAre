@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Switch, Route } from 'react-router-dom'
-import FileServer from './FileSystem';
+import FileServer from './Components/Train/FileSystem';
+import Play from './Components/Predict/Play';
 
 
 class App extends Component {
@@ -15,7 +16,7 @@ class App extends Component {
       <Switch>
         <Route exact path='/' component={FileServer}/>
         <Route exact path='/train' component={FileServer}/>
-        <Route exact path='/play' component={FileServer}/>
+        <Route exact path='/play' component={Play}/>
       </Switch>
     );
   }

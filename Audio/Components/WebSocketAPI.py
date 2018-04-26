@@ -9,10 +9,10 @@ class WebSocketAPI:
         self.socket = None
 
     def connect_to_socket(self):
-        socket = SocketIO('127.0.0.1', 5000, LoggingNamespace)
+        socket = SocketIO('127.0.0.1', 2345, LoggingNamespace)
         self.socket = socket
 
-        logger('Connected to http://127.0.0.1:5000')
+        logger('Connected to http://127.0.0.1:2345')
 
     def model_input(self, data):
         self.socket.emit('model_input', {'data': data})

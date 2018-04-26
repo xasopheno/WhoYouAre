@@ -15,7 +15,7 @@ Platform:
 
 npm manifest: 
   {
-    "name": "ReactMultiDnD",
+    "name": "WhoYouAre",
     "version": "0.1.0",
     "private": true,
     "devDependencies": {

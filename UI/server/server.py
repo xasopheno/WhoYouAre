@@ -51,4 +51,4 @@ def model_output(sid, data):
 if __name__ == '__main__':
     app = socketio.Middleware(sio, app)
 
-    eventlet.wsgi.server(eventlet.listen(('127.0.0.1', 5000)), app)
+    eventlet.wsgi.server(eventlet.listen(('127.0.0.1', 2345)), app)

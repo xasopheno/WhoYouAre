@@ -106,7 +106,7 @@ class Generator:
         if self.play_midi or self.nn:
             try:
                 player = MidiPlayer()
-                logger('Connected')
+                logger('Connected to Midi Player')
             except:
                 print('No midi destinations!')
         return player
@@ -141,6 +141,7 @@ class Generator:
         phrases = {'note_phrase': list(self.store.note_ring_buffer),
                    'length_phrase': list(self.store.length_ring_buffer)}
 
+        start = time.time()
         for step in range(n_to_generate):
             encoded_prediction = make_encoded_prediction(
                 model=self.model,
@@ -163,7 +164,8 @@ class Generator:
                                                predictions['note_prediction'])
             phrases['length_phrase'] = np.append(phrases['length_phrase'][1:],
                                                  predictions['length_prediction'])
-
+        end = time.time()
+        print('time:', end - start)
         return generated_notes, generated_lengths
 
     def generate_and_play_prediction(self):
@@ -171,7 +173,7 @@ class Generator:
             while True:
                 if self.counter > 0:
                     generated_notes, generated_lengths = \
-                        self.generate_predictions(temperature=.1)
+                        self.generate_predictions(temperature=.5)
 
                     play_generated_phrase(
                         generated_notes=generated_notes,

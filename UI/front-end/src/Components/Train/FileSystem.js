@@ -12,7 +12,7 @@ class FileSystem extends Component {
   }
   componentWillMount() {
     let domain = window.location.protocol + '//' +  
-      (window.location.host === 'localhost:3000' ? '127.0.0.1:5000' : '127.0.0.1:5000');
+      (window.location.host === 'localhost:3000' ? '127.0.0.1:2345' : '127.0.0.1:2345');
     this.apiRequest = axios.create({
       baseURL: `${domain}/api/v1/`,
       timeout: 25000,
