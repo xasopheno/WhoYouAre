@@ -67,20 +67,10 @@ class Play extends Component {
     clone.reverse();
     return clone.map((value, index) => {
       if (index === 0) {
-        return <p style={{
-          margin: '.1em',
-          color: 'black',
-          backgroundColor: '#00FA9A',
-          fontSize: '1.2em',
-          padding: '0.5em',
-        }} key={index}>{value}</p>
+        return <p style={styles.play__input_current} key={index}>{value}</p>
       } else {
         return <p
-          style={{
-            margin: '.1em',
-            color: 'grey',
-            fontSize: '.8em',
-          }}
+          style={styles.play__past}
           key={index}>{value}</p>
       }
     })
@@ -89,20 +79,10 @@ class Play extends Component {
   renderOutputArray(array) {
     return array.map((value, index) => {
       if (index === 0) {
-        return <p style={{
-          margin: '.1em',
-          color: 'black',
-          backgroundColor: '#00CED1',
-          fontSize: '1.2em',
-          padding: '0.5em',
-        }} key={index}>{value}</p>
+        return <p style={styles.play__output_current} key={index}>{value}</p>
       } else {
         return <p
-          style={{
-            margin: '.1em',
-            color: 'grey',
-            fontSize: '.8em',
-          }}
+          style={styles.play__past}
           key={index}>{value}</p>
       }
     })
@@ -112,53 +92,30 @@ class Play extends Component {
     return (
       <div>
         <p>Play</p>
-        <div style={{
-          display: 'flex',
-          flexDirection: 'row',
-        }}>
+        <div style={styles.play__column_group}>
           <p>Input</p>
-          <div style={{
-            margin: '1em',
-            marginTop: '0',
-            display: 'flex',
-            flexDirection: 'column',
-          }}>
-            <p>note</p>
+          <div style={styles.play__column}>
+            <p style={{width: '10%'}}>
+              note</p>
             {this.renderInputArray(this.state.input.note)}
           </div>
-          <div style={{
-            margin: '1em',
-            marginTop: '0',
-            display: 'flex',
-            flexDirection: 'column',
-          }}>
-            <p>length</p>
+          <div style={styles.play__column}>
+            <p style={{width: '10%'}}>
+              length
+            </p>
             {this.renderInputArray(this.state.input.length)}
           </div>
 
-
-
-          <div style={{
-            display: 'flex',
-            flexDirection: 'row',
-          }}>
+          <div style={styles.play__column_group}>
             <p>Output</p>
-            <div style={{
-              margin: '1em',
-              marginTop: '0',
-              display: 'flex',
-              flexDirection: 'column',
-            }}>
-              <p>note</p>
+            <div style={styles.play__column}>
+              <p style={{width: '10%'}}>
+                note</p>
               {this.renderOutputArray(this.state.output.note)}
             </div>
-            <div style={{
-              margin: '1em',
-              marginTop: '0',
-              display: 'flex',
-              flexDirection: 'column',
-            }}>
-              <p>length</p>
+            <div style={styles.play__column}>
+              <p style={{width: '10%'}}>
+                length</p>
               {this.renderOutputArray(this.state.output.length)}
             </div>
           </div>
@@ -167,5 +124,41 @@ class Play extends Component {
     );
   }
 }
+
+let styles = {
+  play__column: {
+    margin: '1em',
+    marginTop: '0',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  play__column_group: {
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  play__output_current: {
+    margin: '.1em',
+    color: 'black',
+    backgroundColor: '#00CED1',
+    fontSize: '1.2em',
+    padding: '0.5em',
+    width: '2em',
+    textAlign: 'center',
+  },
+  play__input_current: {
+    margin: '.1em',
+    color: 'black',
+    backgroundColor: '#00FA9A',
+    fontSize: '1.2em',
+    padding: '0.5em',
+    width: '2em',
+    textAlign: 'center',
+  },
+  play__past: {
+    margin: '.1em',
+    color: 'grey',
+    fontSize: '.8em',
+  }
+};
 
 export default Play;
