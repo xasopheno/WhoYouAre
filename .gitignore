@@ -4,4 +4,4 @@ venv/
 *.pyo
 .idea
 trained_models/
-
+yarn-error.log
