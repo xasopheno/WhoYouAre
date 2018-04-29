@@ -1,64 +1,40 @@
 # WhoYouAre
 
 ## Setup 
-pip3 install requirements.txt
+`pip3 install requirements.txt`
+
+`cd UI/front-end/ && yarn`
 
 ## Use
-Generate a .csv file:
+#### Generate a .csv file for training:
 
-`python3 Record.py --display_predictions=True --filtered=True --csv=True`
+`python3 Record.py -val -csv`
 
 Copy .csv values from `Audio/data/output_new.csv` to `Audio/data/input.csv`.
 
-Train on the .csv file:
+#### Train on the .csv file:
 
-Best to open `WhoYouAre.ipynb` with `jupyter notebook` and train from there,
-but network can also be trained with `python3 WhoYouAre.py`
+Open `WhoYouAre.ipynb` with `jupyter notebook`
 
-You can then improvise with the trained model with 
+Copy `model.h5` and `model.json` to `NN/trained_networks`
+#### You can then improvise with the trained model with 
+From the directory `WhoYouAre` run `./client.sh` and `./server.sh`
 
-`python3 Record.py --nn=True --display_predictions=True --filtered=True`
+`python3 Record.py -nn -model=model -cli -val`
 
-
-## Record.py
-python3 Record.py
-
-Records microphone input as midi values
-
-#### Arguments
-default marked in (parentheses)
-* --nn=True | (False)
-* --show_prediction=True | (False) 
-* --show_volume=True | (False)
-* --write_csv=True | (False)
-* --play_midi=True | (False)
-* --play_websocket=True | (False)
-* --filtered=True | (False)
-* --py_osc=True | (False)
-* --nn=True | (False)
-
-##### nn 
-Improvised with a trained model. 
-
-##### show_prediction
-Display the predicted midi values, length and volume
-
-##### show_volume
-Display the volume visualizer in terminal
-
-##### write_csv
-Write the predicted values to a csv file
-
-##### play_midi
-Play midi device attached through usb with rt-midi
-
-##### filtered
-Filter out repeated notes from stream. Currently this is default and cannot be changed
-
-##### py_osc 
-Play local python oscillator (Depricated)
-
-##### play_websockets
-Play local websockets server. For use with browser oscillator. (Depricated)
-
-
+#### `Record.py`
+```
+  -h, --help    show this help message and exit
+  -vol          Specify if input volume should be displayed.
+  -val          Specify if prediction values should be displayed.
+  -csv          Specify if a csv should be written.
+  -midi         Specify if midi should be sent with python-rt-midi.
+  -socket       Specify if frequencies should be sent to a local websocket.
+  -filtered     filter out redundant notes).
+  -py_osc       Specify if frequencies should be sent to the python
+                oscillator.
+  -nn           Improvise with neural network.
+  -model MODEL  specify model to be used with network.
+  -cli          set flag if using webclient
+  
+```
