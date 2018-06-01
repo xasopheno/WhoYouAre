@@ -1,4 +1,5 @@
 from typing import List
+from collections import Counter
 import random
 import os.path
 import sys
@@ -39,7 +40,7 @@ model = load_model('45000')
 
 def generate_key(root: int, scale: List[int], n_octaves: int) -> List[int]:
     current = root
-    midi_key = [60]
+    midi_key = [root]
 
     for octave in range(n_octaves):
         for value in scale:
@@ -60,11 +61,15 @@ def generate_test_datum(midi_key: List[int], size: int) -> List[int]:
     return datum
 
 
-def generate_test_data_array(scope: List[int], n_to_generate: int, size: int = 30) -> List[List[int]]:
+def generate_test_data_array(
+        scope: List[int],
+        n_to_generate: int,
+        size: int = 30
+    ) -> List[List[int]]:
     return [generate_test_datum(scope, size) for _ in range(n_to_generate)]
 
 
-test_key = generate_key(48, major, 3)
+test_key = generate_key(49, major, 3)
 
 note_phrases = generate_test_data_array(
     scope=test_key,
@@ -78,7 +83,7 @@ length_phrases = generate_test_data_array(
 
 result = 0
 total = 0
-zeros = 0
+passing_results = []
 
 for phrase in range(len(note_phrases)):
     phrases = {'note_phrase': note_phrases[phrase],
@@ -102,10 +107,9 @@ for phrase in range(len(note_phrases)):
 
     if note_prediction is not 0:
         total += 1
-        if (
-            note_prediction in test_key
-        ):
+        if note_prediction in test_key:
             print('prediction', phrase, note_prediction, 'PASS')
+            passing_results.append(note_prediction)
             result += 1
         else:
             print('prediction', phrase, note_prediction, '**********FAIL')
@@ -115,5 +119,7 @@ for phrase in range(len(note_phrases)):
 print('************RESULT***************')
 print(result, '/', total, 'tests passed')
 print('% tests predicted the correct key', result/total)
-print(total - n_tests, 'tests predicted 0')
-print('% tests predicted silence', zeros/total)
+zeros = n_tests - total
+print(zeros, 'tests predicted silence (0)')
+print('% tests predicted silence', zeros/n_tests)
+print('passing_results', Counter(passing_results))
