@@ -12,6 +12,7 @@ from Audio.Components.helpers.prepare_arrays import prepare_notes, prepare_lengt
 from Audio.Components.helpers.load_model import load_model
 
 major = [2, 2, 1, 2, 2, 2, 1]
+n_tests = 1000
 
 notes = prepare_notes()
 lengths = prepare_lengths()
@@ -67,14 +68,17 @@ test_key = generate_key(48, major, 3)
 
 note_phrases = generate_test_data_array(
     scope=test_key,
-    n_to_generate=20
+    n_to_generate=n_tests
 )
 
 length_phrases = generate_test_data_array(
     scope=lengths,
-    n_to_generate=20
+    n_to_generate=n_tests
 )
 
+result = 0
+total = 0
+zeros = 0
 
 for phrase in range(len(note_phrases)):
     phrases = {'note_phrase': note_phrases[phrase],
@@ -89,15 +93,27 @@ for phrase in range(len(note_phrases)):
     )
 
     predictions = decode_predictions(
-        temperature=1,
+        temperature=0.5,
         encoded_prediction=encoded_prediction,
         lookup_indicies=lookup_indicies,
     )
 
     note_prediction = predictions['note_prediction']
-    print('prediction', phrase, note_prediction)
 
-    result = 0
-    if (note_prediction in test_key or note_prediction == 0):
-        result += 1
-    print()
+    if note_prediction is not 0:
+        total += 1
+        if (
+            note_prediction in test_key
+        ):
+            print('prediction', phrase, note_prediction, 'PASS')
+            result += 1
+        else:
+            print('prediction', phrase, note_prediction, '**********FAIL')
+    else:
+        print('   Predicted 0')
+
+print('************RESULT***************')
+print(result, '/', total, 'tests passed')
+print('% tests predicted the correct key', result/total)
+print(total - n_tests, 'tests predicted 0')
+print('% tests predicted silence', zeros/total)
