@@ -100,4 +100,4 @@ for phrase in range(len(note_phrases)):
     result = 0
     if (note_prediction in test_key or note_prediction == 0):
         result += 1
-print({})
+    print()
