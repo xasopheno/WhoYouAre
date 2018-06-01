@@ -1,6 +1,4 @@
-from typing import List
 from collections import Counter
-import random
 import os.path
 import sys
 
@@ -11,6 +9,8 @@ from Audio.Components.helpers.decode_predictions import decode_predictions
 from Audio.Components.helpers.create_categorical_indicies import create_category_indicies
 from Audio.Components.helpers.prepare_arrays import prepare_notes, prepare_lengths
 from Audio.Components.helpers.load_model import load_model
+from Test.helpers.generate_key import generate_key
+from Test.helpers.generate_test_data import generate_test_data_array
 
 major = [2, 2, 1, 2, 2, 2, 1]
 n_tests = 1000
@@ -36,37 +36,6 @@ categorized_variables = {
 }
 
 model = load_model('45000')
-
-
-def generate_key(root: int, scale: List[int], n_octaves: int) -> List[int]:
-    current = root
-    midi_key = [root]
-
-    for octave in range(n_octaves):
-        for value in scale:
-            current += value
-            midi_key.append(current)
-
-    print(midi_key)
-    return midi_key
-
-
-def generate_test_datum(midi_key: List[int], size: int) -> List[int]:
-    def choose_random_element():
-        rand = random.randrange(0, len(midi_key) -1)
-        return midi_key[rand]
-
-    datum = [choose_random_element() for _ in range(size)]
-    print(datum)
-    return datum
-
-
-def generate_test_data_array(
-        scope: List[int],
-        n_to_generate: int,
-        size: int = 30
-    ) -> List[List[int]]:
-    return [generate_test_datum(scope, size) for _ in range(n_to_generate)]
 
 
 test_key = generate_key(49, major, 3)
