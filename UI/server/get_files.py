@@ -40,7 +40,6 @@ def get_file_names():
 
     return file_names
 
-
 def concat_csv_files(array_chosen_files):
     data_dir = get_data_dir()
     with open(os.getcwd() + '/Audio/Data/concatenated_csv.csv', 'w') as final:
