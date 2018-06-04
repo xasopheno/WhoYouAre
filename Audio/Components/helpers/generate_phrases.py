@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def generate_phrases(category_index, n_time_steps, semi_redundancy_step):
     category_xs = []
     category_ys = []

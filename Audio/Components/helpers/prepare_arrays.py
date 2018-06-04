@@ -8,6 +8,13 @@ def prepare_notes():
     return notes
 
 
+def prepare_note_names():
+    notes = []
+    for i in range(0, 11):
+        notes.append(i)
+    return notes
+
+
 def prepare_lengths():
     lengths = []
     first_field = np.arange(0.0, 1., 0.01)
