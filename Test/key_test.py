@@ -9,11 +9,14 @@ from Audio.Components.helpers.decode_predictions import decode_predictions
 from Audio.Components.helpers.create_categorical_indicies import create_category_indicies
 from Audio.Components.helpers.prepare_arrays import prepare_notes, prepare_lengths
 from Audio.Components.helpers.load_model import load_model
+
 from Test.helpers.generate_key import generate_key
 from Test.helpers.generate_test_data import generate_test_data_array
+from Test.helpers.midi_to_key import midi_to_key
 
 major = [2, 2, 1, 2, 2, 2, 1]
 n_tests = 1000
+root = 54
 
 notes = prepare_notes()
 lengths = prepare_lengths()
@@ -38,7 +41,7 @@ categorized_variables = {
 model = load_model('45000')
 
 
-test_key = generate_key(49, major, 3)
+test_key = generate_key(48, major, 3)
 
 note_phrases = generate_test_data_array(
     scope=test_key,
@@ -53,6 +56,9 @@ length_phrases = generate_test_data_array(
 result = 0
 total = 0
 passing_results = []
+failing_results = []
+
+test_key = generate_key(root-12, major, 5)
 
 for phrase in range(len(note_phrases)):
     phrases = {'note_phrase': note_phrases[phrase],
@@ -78,17 +84,23 @@ for phrase in range(len(note_phrases)):
         total += 1
         if note_prediction in test_key:
             print('prediction', phrase, note_prediction, 'PASS')
-            passing_results.append(note_prediction)
+            passing_results.append(midi_to_key[note_prediction])
             result += 1
         else:
             print('prediction', phrase, note_prediction, '**********FAIL')
+            failing_results.append(midi_to_key[note_prediction])
     else:
         print('   Predicted 0')
 
+for value in generate_key(root, major, 1):
+    print(midi_to_key[value])
+
 print('************RESULT***************')
+print('ROOT is ', midi_to_key[root])
 print(result, '/', total, 'tests passed')
 print('% tests predicted the correct key', result/total)
 zeros = n_tests - total
 print(zeros, 'tests predicted silence (0)')
 print('% tests predicted silence', zeros/n_tests)
-print('passing_results', Counter(passing_results))
+print('***passing_results***', Counter(passing_results))
+print('!!!failing_results!!!', Counter(failing_results))
