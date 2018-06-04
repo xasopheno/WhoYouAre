@@ -47,17 +47,23 @@ def make_columns(line):
     global last_note
     line = list(map(lambda col: col.rstrip('\n,'), line.split(' ')))
     midi_num = (int(line[0]))
-    line.append(midi_to_note_number[midi_num])
+
+    if midi_num == 0:
+        line.insert(1, '0')
+    else:
+        line.insert(1, str(midi_to_note_number[midi_num] + 1))
 
     interval = midi_num - last_note
     while abs(interval) > 24:
         interval = interval / 2
     if midi_num is not 0 and last_note is not 0:
-        line.append(interval)
+        line.insert(2, str(interval))
         last_note = midi_num
     else:
-        line.append(0)
-    print(line)
+        line.insert(2, '0')
+
+    return ' '.join(line)
+
 
 
 def concat_csv_files(array_chosen_files):
@@ -68,8 +74,8 @@ def concat_csv_files(array_chosen_files):
                 with open(file) as content:
                     next(content)
                     for line in content:
-                        make_columns(line)
-                        final.write(line)
+                        line = make_columns(line)
+                        final.write(line + '\n')
                     print(get_file_name(file))
 
     print('File Length:', file_len(os.getcwd() + '/Audio/Data/concatenated_csv.csv'))
