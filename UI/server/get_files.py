@@ -1,8 +1,7 @@
-import os.path
+import os
 import sys
 import re
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
-
 from Test.helpers.midi_to_note_number import midi_to_note_number
 
 
