@@ -10,9 +10,9 @@ from Audio.Components.helpers.create_categorical_indicies import create_category
 from Audio.Components.helpers.prepare_arrays import prepare_notes, prepare_lengths
 from Audio.Components.helpers.load_model import load_model
 
-from Test.helpers.generate_key import generate_key
-from Test.helpers.generate_test_data import generate_test_data_array
-from Test.helpers.midi_to_key import midi_to_key
+from Spec.helpers.generate_key import generate_key
+from Spec.helpers.generate_test_data import generate_test_data_array
+from Spec.helpers.midi_to_key import midi_to_key
 
 major = [2, 2, 1, 2, 2, 2, 1]
 n_tests = 1000

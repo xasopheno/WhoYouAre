@@ -1,9 +1,11 @@
-import os
+import os.path
 import sys
 import re
-sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
-from Test.helpers.midi_to_note_number import midi_to_note_number
 
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
+from midi_to_note_number import midi_to_note_number
+
+last_note = 60
 
 def get_data_dir():
     data_dir = os.getcwd() + '/Audio/Data/language'
@@ -42,8 +44,19 @@ def get_file_names():
 
 
 def make_columns(line):
+    global last_note
     line = list(map(lambda col: col.rstrip('\n,'), line.split(' ')))
-    line.append(midi_to_note_number(line[0]))
+    midi_num = (int(line[0]))
+    line.append(midi_to_note_number[midi_num])
+
+    interval = midi_num - last_note
+    while abs(interval) > 24:
+        interval = interval / 2
+    if midi_num is not 0 and last_note is not 0:
+        line.append(interval)
+        last_note = midi_num
+    else:
+        line.append(0)
     print(line)
 
 
@@ -62,5 +75,4 @@ def concat_csv_files(array_chosen_files):
     print('File Length:', file_len(os.getcwd() + '/Audio/Data/concatenated_csv.csv'))
 
 
-if __name__ == '__main__':
-    concat_csv_files(get_file_names()[0])
+concat_csv_files(get_file_names()[0])
