@@ -41,6 +41,11 @@ def get_file_names():
     return file_names
 
 
+def make_columns(line):
+    line = list(map(lambda col: col.rstrip('\n,'), line.split(' ')))
+    print(line)
+
+
 def concat_csv_files(array_chosen_files):
     data_dir = get_data_dir()
     with open(os.getcwd() + '/Audio/Data/concatenated_csv.csv', 'w') as final:
@@ -49,10 +54,12 @@ def concat_csv_files(array_chosen_files):
                 with open(file) as content:
                     next(content)
                     for line in content:
+                        make_columns(line)
                         final.write(line)
                     print(get_file_name(file))
 
     print('File Length:', file_len(os.getcwd() + '/Audio/Data/concatenated_csv.csv'))
 
 
-concat_csv_files(get_file_names())
+if __name__ == '__main__':
+    concat_csv_files(get_file_names()[0])
