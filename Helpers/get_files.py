@@ -2,10 +2,11 @@ import os.path
 import sys
 import re
 
-sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
-from midi_to_note_number import midi_to_note_number
+sys.path.append(os.getcwd())
+from Helpers.midi_to_note_number import midi_to_note_number
 
 last_note = 60
+
 
 def get_data_dir():
     data_dir = os.getcwd() + '/Audio/Data/language'
@@ -51,16 +52,19 @@ def make_columns(line):
     if midi_num == 0:
         line.insert(1, '0')
     else:
-        line.insert(1, str(midi_to_note_number[midi_num] + 1))
+        line.insert(1, midi_to_note_number[midi_num])
 
     interval = midi_num - last_note
+
     while abs(interval) > 24:
         interval = interval / 2
     if midi_num is not 0 and last_note is not 0:
-        line.insert(2, str(interval))
+        line.insert(2, interval)
         last_note = midi_num
     else:
         line.insert(2, '0')
+
+    line = list(map(lambda col: str(col), line))
 
     return ' '.join(line)
 

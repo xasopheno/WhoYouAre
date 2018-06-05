@@ -1,10 +1,14 @@
+import os, sys
+
 from flask import Flask, jsonify, request
-from get_files import get_file_names, concat_csv_files
 from flask_cors import CORS
 import json
 import socketio
 import eventlet
 import eventlet.wsgi
+sys.path.append(os.getcwd())
+print(sys.path)
+from Helpers.get_files import get_file_names, concat_csv_files
 
 sio = socketio.Server(logger=True)
 app = Flask(__name__)
