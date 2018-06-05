@@ -10,14 +10,14 @@ def prepare_notes():
 
 def prepare_note_names():
     notes_names = []
-    for i in range(0, 12):
+    for i in range(0, 13):
         notes_names.append(i)
     return notes_names
 
 
 def prepare_intervals():
     intervals = []
-    for i in range(-24, 24):
+    for i in range(-24, 25):
         intervals.append(i)
     return intervals
 

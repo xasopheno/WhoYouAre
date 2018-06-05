@@ -12,7 +12,7 @@ def add_intervals_and_note_names(line: List[str], last: int) -> List:
     return line_copy
 
 
-def add_intervals(line: List[str], midi_num: int):
+def add_note_names(line: List[str], midi_num: int):
     line_copy = line[:]
 
     if midi_num == 0:
@@ -23,7 +23,7 @@ def add_intervals(line: List[str], midi_num: int):
     return line_copy
 
 
-def add_note_names(line: List, midi_num: int, last: int):
+def add_intervals(line: List, midi_num: int, last: int):
     line_copy = line[:]
 
     interval = midi_num - last

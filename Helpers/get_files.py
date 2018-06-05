@@ -54,7 +54,7 @@ def make_columns(line):
     last_note = int(line[0])
 
     line = list(map(lambda col: str(col), line))
-    return ' '.join(line)
+    return ', '.join(line)
 
 
 def concat_csv_files(array_chosen_files):

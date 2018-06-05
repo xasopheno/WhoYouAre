@@ -25,6 +25,20 @@ def make_encoded_prediction(
             n_categories=len(categorized_variables['note_categories']),
             n_time_steps=n_time_steps)
 
+    encoded_interval_prediction = \
+        encode_phrase_for_prediction(
+            unencoded_phrase=phrases['interval_phrase'],
+            category_index=lookup_indicies['interval_index'],
+            n_categories=len(categorized_variables['interval_categories']),
+            n_time_steps=n_time_steps)
+
+    encoded_note_name_prediction = \
+        encode_phrase_for_prediction(
+            unencoded_phrase=phrases['note_name_phrase'],
+            category_index=lookup_indicies['note_name_index'],
+            n_categories=len(categorized_variables['note_name_categories']),
+            n_time_steps=n_time_steps)
+
     encoded_length_prediction = \
         encode_phrase_for_prediction(
             unencoded_phrase=phrases['length_phrase'],
@@ -32,7 +46,12 @@ def make_encoded_prediction(
             n_categories=len(categorized_variables['length_categories']),
             n_time_steps=n_time_steps)
 
-    prediction = model.predict([encoded_note_prediction,
-                                encoded_length_prediction])
+    prediction = model.predict(
+        [
+            encoded_note_prediction,
+            encoded_note_name_prediction,
+            encoded_interval_prediction,
+            encoded_length_prediction,
+        ])
 
     return prediction
