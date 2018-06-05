@@ -29,8 +29,8 @@ length_index, index_length = \
 lookup_indicies = {
     'note_index': note_index,
     'index_note': index_note,
-    'lengths_index': length_index,
-    'index_lengths': index_length,
+    'length_index': length_index,
+    'index_length': index_length,
 }
 
 categorized_variables = {

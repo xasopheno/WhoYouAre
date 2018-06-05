@@ -19,7 +19,7 @@ def decode_predictions(encoded_prediction, lookup_indicies, temperature=1.0):
 
     length_prediction = decode_prediction(
         encoded_prediction=encoded_length_prediction,
-        lookup_index=lookup_indicies['index_lengths'],
+        lookup_index=lookup_indicies['index_length'],
         temperature=temperature
     )
 

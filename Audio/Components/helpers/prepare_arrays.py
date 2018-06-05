@@ -9,10 +9,17 @@ def prepare_notes():
 
 
 def prepare_note_names():
-    notes = []
-    for i in range(0, 11):
-        notes.append(i)
-    return notes
+    notes_names = []
+    for i in range(0, 12):
+        notes_names.append(i)
+    return notes_names
+
+
+def prepare_intervals():
+    intervals = []
+    for i in range(-24, 24):
+        intervals.append(i)
+    return intervals
 
 
 def prepare_lengths():
@@ -26,3 +33,12 @@ def prepare_lengths():
         lengths.append(round(value, 1))
 
     return lengths
+
+
+def get_categorized_variables():
+    return {
+        'note_categories': prepare_notes(),
+        'length_categories': prepare_lengths(),
+        'note_name_categories': prepare_note_names(),
+        'interval_categories': prepare_intervals(),
+    }

@@ -75,8 +75,8 @@ class Generator:
             self.lookup_indicies = {
                 'note_index': self.note_index,
                 'index_note': self.index_note,
-                'lengths_index': self.length_index,
-                'index_lengths': self.index_length,
+                'length_index': self.length_index,
+                'index_length': self.index_length,
             }
 
             self.model = load_model(args.model[0])

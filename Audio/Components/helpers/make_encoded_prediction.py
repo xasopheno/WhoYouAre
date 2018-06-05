@@ -28,7 +28,7 @@ def make_encoded_prediction(
     encoded_length_prediction = \
         encode_phrase_for_prediction(
             unencoded_phrase=phrases['length_phrase'],
-            category_index=lookup_indicies['lengths_index'],
+            category_index=lookup_indicies['length_index'],
             n_categories=len(categorized_variables['length_categories']),
             n_time_steps=n_time_steps)
 
