@@ -1,7 +1,7 @@
 import os.path
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
+sys.path.append(os.getcwd())
 from Audio.Components.Generator import Generator
 from Audio.Components.args.record_options import record_options
 

@@ -3,7 +3,7 @@ import sys
 import re
 
 sys.path.append(os.getcwd())
-from Helpers.midi_to_note_number import midi_to_note_number
+from Helpers.add_intervals_and_note_names import add_intervals_and_note_names
 
 last_note = 60
 
@@ -45,29 +45,16 @@ def get_file_names():
 
 
 def make_columns(line):
+    line = line[:]
     global last_note
     line = list(map(lambda col: col.rstrip('\n,'), line.split(' ')))
-    midi_num = (int(line[0]))
 
-    if midi_num == 0:
-        line.insert(1, '0')
-    else:
-        line.insert(1, midi_to_note_number[midi_num])
+    line = add_intervals_and_note_names(line, last_note)
 
-    interval = midi_num - last_note
-
-    while abs(interval) > 24:
-        interval = interval / 2
-    if midi_num is not 0 and last_note is not 0:
-        line.insert(2, interval)
-        last_note = midi_num
-    else:
-        line.insert(2, '0')
+    last_note = int(line[0])
 
     line = list(map(lambda col: str(col), line))
-
     return ' '.join(line)
-
 
 
 def concat_csv_files(array_chosen_files):
