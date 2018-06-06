@@ -2,12 +2,12 @@ from Helpers.midi_to_note_number import midi_to_note_number
 from typing import List
 
 
-def add_intervals_and_note_names(line: List[str], last: int) -> List:
+def add_intervals_and_note_names(line: List, last: int) -> List:
     line_copy = line[:]
     midi_num = (int(line_copy[0]))
 
-    line_copy = add_intervals(line_copy, midi_num)
-    line_copy = add_note_names(line_copy, midi_num, last)
+    line_copy = add_note_names(line_copy, midi_num)
+    line_copy = add_intervals(line_copy, midi_num, last)
 
     return line_copy
 
@@ -23,17 +23,18 @@ def add_note_names(line: List[str], midi_num: int):
     return line_copy
 
 
-def add_intervals(line: List, midi_num: int, last: int):
+def add_intervals(line: List[str], midi_num: int, last: int) -> List[str]:
     line_copy = line[:]
 
     interval = midi_num - last
 
     while abs(interval) > 24:
         interval = interval / 2
+
     if midi_num is not 0 and last is not 0:
-        line_copy.insert(2, interval)
+        line_copy.insert(2, str(int(interval)))
     else:
-        line_copy.insert(2, '0')
+        line_copy.insert(2, "0")
 
     return line_copy
 

@@ -65,11 +65,14 @@ def concat_csv_files(array_chosen_files):
                 with open(file) as content:
                     next(content)
                     for line in content:
-                        line = make_columns(line)
-                        final.write(line + '\n')
+                        try:
+                            line = make_columns(line)
+                            final.write(line + '\n')
+                        except:
+                            print('Error: Could not write line', line)
                     print(get_file_name(file))
 
     print('File Length:', file_len(os.getcwd() + '/Audio/Data/concatenated_csv.csv'))
 
 
-concat_csv_files(get_file_names()[0])
+concat_csv_files(get_file_names())
