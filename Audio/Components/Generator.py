@@ -4,23 +4,27 @@ import time
 import threading
 import random
 import tensorflow as tf
-import json
+import os
+import sys
+sys.path.append(os.getcwd())
 
 from Audio.Components.MidiPlayer import MidiPlayer
 from Audio.Components.StreamToFrequency import StreamToFrequency
 from Audio.Components.Store import Store
-from Audio.Components.File_Writer import File_Writer
+from Audio.Components.File_Writer import FileWriter
 from Audio.Components.WebSocketPlayer import WebSocketPlayer
 from Audio.Components.WebSocketAPI import WebSocketAPI
 
 from Audio.Components.helpers.logger import logger
 from Audio.Components.helpers.load_model import load_model
 from Audio.Components.helpers.midi_to_hertz import midi_to_hertz
-from Audio.Components.helpers.prepare_arrays import prepare_notes, prepare_lengths
-from Audio.Components.helpers.create_categorical_indicies import create_category_indicies
+from Audio.Components.helpers.prepare_arrays import get_categorized_variables
+from Audio.Components.helpers.create_categorical_indicies import create_lookup_indicies
 from Audio.Components.helpers.make_encoded_prediction import make_encoded_prediction
 from Audio.Components.helpers.decode_predictions import decode_predictions
 from Audio.Components.helpers.play_generated_phrase import play_generated_phrase
+from Helpers.map_midi_to_interval import map_midi_to_interval
+from Helpers.map_midi_to_note_number import map_midi_to_note_number
 import constants
 
 from Audio.Player.osc import SineOsc
@@ -39,7 +43,7 @@ class Generator:
         self.nn = args.nn
         self.wave = args.wave
 
-        self.writer = File_Writer(write=self.write_csv)
+        self.writer = FileWriter(write=self.write_csv)
         self.store = Store()
         self.detector = StreamToFrequency(store=self.store,
                                           show_volume=self.display_volume)
@@ -59,25 +63,10 @@ class Generator:
             self.counter = 0
             self.prediction_lock = threading.Lock()
             self.n_time_steps = constants.n_time_steps
-            self.notes = prepare_notes()
-            self.lengths = prepare_lengths()
 
-            self.categorized_variables = {
-                'note_categories': self.notes,
-                'length_categories': self.lengths
-            }
+            self.categorized_variables = get_categorized_variables()
 
-            self.note_index, self.index_note = \
-                create_category_indicies(category=self.notes)
-            self.length_index, self.index_length = \
-                create_category_indicies(category=self.lengths)
-
-            self.lookup_indicies = {
-                'note_index': self.note_index,
-                'index_note': self.index_note,
-                'length_index': self.length_index,
-                'index_length': self.index_length,
-            }
+            self.lookup_indicies = create_lookup_indicies(self.categorized_variables)
 
             self.model = load_model(args.model[0])
             self.graph = tf.get_default_graph()
@@ -141,6 +130,9 @@ class Generator:
         phrases = {'note_phrase': list(self.store.note_ring_buffer),
                    'length_phrase': list(self.store.length_ring_buffer)}
 
+        phrases['interval_phrase'] = map_midi_to_interval(phrases['note_phrase'], 0)
+        phrases['note_name_phrase'] = map_midi_to_note_number(phrases['note_phrase'])
+
         start = time.time()
         for step in range(n_to_generate):
             encoded_prediction = make_encoded_prediction(
@@ -160,10 +152,16 @@ class Generator:
             generated_notes.append(predictions['note_prediction'])
             generated_lengths.append(predictions['length_prediction'])
 
+            last = generated_notes[0]
             phrases['note_phrase'] = np.append(phrases['note_phrase'][1:],
                                                predictions['note_prediction'])
             phrases['length_phrase'] = np.append(phrases['length_phrase'][1:],
                                                  predictions['length_prediction'])
+
+            phrases['interval_phrase'] = map_midi_to_interval(phrases['note_phrase'], last)
+            phrases['note_name_phrase'] = map_midi_to_note_number(phrases['note_phrase'])
+
+
         end = time.time()
         print('time:', end - start)
         return generated_notes, generated_lengths
@@ -173,7 +171,7 @@ class Generator:
             while True:
                 if self.counter > 0:
                     generated_notes, generated_lengths = \
-                        self.generate_predictions(temperature=.5)
+                        self.generate_predictions(temperature=0.5)
 
                     play_generated_phrase(
                         generated_notes=generated_notes,

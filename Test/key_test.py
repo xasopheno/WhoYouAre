@@ -4,42 +4,28 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
 
+from Audio.Components.helpers.prepare_arrays import get_categorized_variables, prepare_lengths, prepare_notes
 from Audio.Components.helpers.make_encoded_prediction import make_encoded_prediction
 from Audio.Components.helpers.decode_predictions import decode_predictions
-from Audio.Components.helpers.create_categorical_indicies import create_category_indicies
-from Audio.Components.helpers.prepare_arrays import prepare_notes, prepare_lengths
+from Audio.Components.helpers.create_categorical_indicies import create_lookup_indicies
 from Audio.Components.helpers.load_model import load_model
-
 from Test.helpers.generate_key import generate_key
 from Test.helpers.generate_test_data import generate_test_data_array
-from Test.helpers.midi_to_key import midi_to_key
+from Helpers.midi_to_key import midi_to_key
+from Helpers.map_midi_to_note_number import map_midi_to_note_number
+from Helpers.map_midi_to_interval import map_midi_to_interval
 
 major = [2, 2, 1, 2, 2, 2, 1]
 n_tests = 1000
-root = 54
+root = 60
+categorized_variables = get_categorized_variables()
 
 notes = prepare_notes()
 lengths = prepare_lengths()
 
-note_index, index_note = \
-    create_category_indicies(category=notes)
-length_index, index_length = \
-    create_category_indicies(category=lengths)
+lookup_indicies = create_lookup_indicies(categorized_variables)
 
-lookup_indicies = {
-    'note_index': note_index,
-    'index_note': index_note,
-    'length_index': length_index,
-    'index_length': index_length,
-}
-
-categorized_variables = {
-    'note_categories': notes,
-    'length_categories': lengths
-}
-
-model = load_model('45000')
-
+model = load_model('10')
 
 test_key = generate_key(48, major, 3)
 
@@ -63,6 +49,9 @@ test_key = generate_key(root-12, major, 5)
 for phrase in range(len(note_phrases)):
     phrases = {'note_phrase': note_phrases[phrase],
                'length_phrase': length_phrases[phrase]}
+
+    phrases['interval_phrase'] = map_midi_to_interval(phrases['note_phrase'], 0)
+    phrases['note_name_phrase'] = map_midi_to_note_number(phrases['note_phrase'])
 
     encoded_prediction = make_encoded_prediction(
         model=model,
@@ -92,7 +81,7 @@ for phrase in range(len(note_phrases)):
     else:
         print('   Predicted 0')
 
-for value in generate_key(root, major, 1):
+for value in generate_key(root, major, 2):
     print(midi_to_key[value])
 
 print('************RESULT***************')

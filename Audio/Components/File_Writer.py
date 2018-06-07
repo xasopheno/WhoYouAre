@@ -1,7 +1,7 @@
 import os
 
 
-class File_Writer:
+class FileWriter:
     def __init__(self, filename='', write=False):
         self.default_filename = 'output_new.csv'
         self.file_name = self.get_path(filename)
@@ -21,7 +21,7 @@ class File_Writer:
         return path
 
     def prepare_file(self):
-        self.file.write('note, length, volume\n')
+        self.file.write('note, note_name, interval, length, volume\n')
 
     def write_to_csv(self, predicted_values):
         note = predicted_values['note']
