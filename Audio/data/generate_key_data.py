@@ -46,11 +46,12 @@ for root in range(36, 59):
     intervals = map_midi_to_interval(note_phrases, 0)
 
     for n in range(len(note_phrases)):
-        line = "{}, {}, {}, {}\n".format(
+        line = "{}, {}, {}\n".format(
             note_phrases[n],
-            note_names[n],
-            intervals[n],
-            length_phrases[n]
+            # note_names[n],
+            # intervals[n],
+            length_phrases[n],
+            1,
             )
         print(line)
 

@@ -17,7 +17,7 @@ from Helpers.map_midi_to_interval import map_midi_to_interval
 
 major = [2, 2, 1, 2, 2, 2, 1]
 n_tests = 1000
-root = 60
+root = 66
 categorized_variables = get_categorized_variables()
 
 notes = prepare_notes()
@@ -25,7 +25,7 @@ lengths = prepare_lengths()
 
 lookup_indicies = create_lookup_indicies(categorized_variables)
 
-model = load_model('10')
+model = load_model('model_24')
 
 test_key = generate_key(48, major, 3)
 
