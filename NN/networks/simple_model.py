@@ -13,16 +13,30 @@ def create_model(categorized_variables, lstm_size, lr, n_time_steps, dropout):
 
     concat = concatenate([note_input, note_name_input, interval_input, length_input])
 
-    lstm_1 = Bidirectional(LSTM(lstm_size, return_sequences=True))(concat)
+    lstm1 = Bidirectional(LSTM(lstm_size, return_sequences=True))(concat)
+    dropout1 = Dropout(dropout)(lstm1)
 
-    note_dropout = Dropout(dropout)(lstm_1)
+    lstm2 = Bidirectional(LSTM(lstm_size, return_sequences=True))(dropout1)
+    dropout2 = Dropout(dropout)(lstm2)
 
-    lstm_2 = Bidirectional(LSTM(lstm_size, return_sequences=False))(note_dropout)
+    lstm3 = Bidirectional(LSTM(lstm_size, return_sequences=True))(dropout2)
+    dropout3 = Dropout(dropout)(lstm3)
 
-    output_notes = Dense(len(categorized_variables['note_categories']), activation='softmax', name='note_output')(lstm_2)
-    length_output = Dense(len(categorized_variables['length_categories']), activation='softmax', name='length_output')(lstm_2)
+    lstm4 = Bidirectional(LSTM(lstm_size, return_sequences=True))(dropout3)
+    dropout4 = Dropout(dropout)(lstm4)
 
-    optimizer = optimizers.RMSprop(lr=lr, decay=0.0001)
+    lstm5 = Bidirectional(LSTM(lstm_size, return_sequences=True))(dropout4)
+    dropout5 = Dropout(dropout)(lstm5)
+
+    lstm6 = Bidirectional(LSTM(lstm_size, return_sequences=True))(dropout5)
+    dropout6 = Dropout(dropout)(lstm6)
+
+    lstm7 = Bidirectional(LSTM(lstm_size, return_sequences=False))(dropout6)
+
+    output_notes = Dense(len(categorized_variables['note_categories']), activation='softmax', name='note_output')(lstm7)
+    length_output = Dense(len(categorized_variables['length_categories']), activation='softmax', name='length_output')(lstm7)
+
+    optimizer = optimizers.Nadam(lr=lr)
     model = Model(inputs=[note_input, note_name_input, interval_input, length_input],
                   outputs=[output_notes, length_output])
     model.compile(loss=['categorical_crossentropy', 'categorical_crossentropy'], loss_weights=[1, 0.5], optimizer=optimizer)
