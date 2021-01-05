@@ -7,7 +7,7 @@
     "react-scripts": "1.0.7"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "prop-types": "^15.5.10",
     "react": "^15.6.1",
     "react-dnd": "^2.1.4",
